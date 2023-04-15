@@ -4,14 +4,16 @@
 
 #include <cstdint>
 #include <string>
+#include <map>
 
 #include "record.h"
 
 class Record;
 
-enum class DBCError : errno_t {
+enum class DBCError {
   kSuccess = 0,
-  kFileNotOpen,
+  kFileNotOpened,
+  kFileOpenError,
   kInvalidMagic,
 };
 
@@ -41,11 +43,14 @@ class DBCHandler {
   void Clear();
 
   Record operator[](uint32_t index);
+  Record GetRecordById(uint32_t record_id);
+  Record AllocateNewRecord();
 
  private:
   const uint32_t kDBCMagic = 0x43424457;  // 'WDBC'
 
   DBCFile* dbc_;
+  std::map<uint32_t, Record> record_id_map_;
 };
 
 #endif  // _DBC_H_

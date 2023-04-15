@@ -19,8 +19,8 @@ class Record {
   void SetUInt32(uint32_t field, uint32_t val) const;
 
   std::string GetString(uint32_t field) const;
-  void SetStringRef(uint32_t field, const char* str) const;
-  void AddStringRef(uint32_t field, const char* str) const;
+  void SetStringRef(uint32_t field, const std::string& str) const;
+  void AddStringRef(uint32_t field, const std::string& str) const;
 
  private:
   Record(DBCFile* dbc, uint32_t index);

@@ -1,4 +1,4 @@
-include_directories(${SirusPatcher_SOURCE_DIR}/DBCLib/inc)
+include_directories(${SirusPatcher_SOURCE_DIR}/DBC/inc)
 
 file (GLOB SOURCES *.cc)
 
