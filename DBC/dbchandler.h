@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-#include "record.h"
+#include "dbc/record.h"
 
 class Record;
 
