@@ -1,6 +1,7 @@
 .vscode
 build
 *.dbc
+*CMakeLists.txt.user
 MPQEditor.exe
 Profiles.ini
 MyDbcEditor.exe
