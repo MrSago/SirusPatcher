@@ -1,4 +1,4 @@
-set(CMAKE_PREFIX_PATH "C:/Qt/6.3.1/mingw_64")
+set(CMAKE_PREFIX_PATH "C:/Qt/6.3.1/msvc2019_64")
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
