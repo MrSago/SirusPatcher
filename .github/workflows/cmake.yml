@@ -25,11 +25,10 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.1.0
         with:
-          version: '6.2.0'
+          version: '6.3.1'
           host: 'windows'
-          os_name: 'windows'
           target: 'desktop'
-          arch: 'win64_mingw810'
+          arch: 'win64_mingw'
           dir: '${{github.workspace}}/qt/'
           install-deps: 'true'
 
