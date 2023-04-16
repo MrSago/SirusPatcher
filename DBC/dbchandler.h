@@ -9,7 +9,7 @@
 
 class Record;
 
-enum DBCError : errno_t {
+enum class DBCError : errno_t {
   kSuccess = 0,
   kFileNotOpened,
   kFileOpenError,
@@ -37,19 +37,20 @@ class DBCHandler {
   DBCHandler();
   ~DBCHandler();
 
-  errno_t Load(const std::string& filename);
-  errno_t Save(const std::string& filename) const;
+  DBCError Load(const std::string& filename);
+  DBCError Save(const std::string& filename);
   void Clear();
 
-  Record operator[](uint32_t index) const;
+  Record operator[](uint32_t index);
   Record GetRecordById(uint32_t record_id);
   Record AllocateNewRecord();
 
  private:
   const uint32_t kDBCMagic = 0x43424457;  // 'WDBC'
 
+  Record BinSearchRecord(uint32_t record_id);
+
   DBCFile* dbc_;
-  std::map<uint32_t, Record> record_id_map_;
 };
 
 #endif  // _DBC_H_
