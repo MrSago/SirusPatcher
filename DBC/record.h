@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "dbc.h"
+#include "dbc/dbchandler.h"
 
 class DBCHandler;
 struct DBCFile;
@@ -12,10 +12,10 @@ struct DBCFile;
 class Record {
  public:
   float GetFloat(uint32_t field) const;
-  void SetFloat(uint32_t field, float val) const;
+  void SetFloat(uint32_t field, float val);
 
   uint32_t GetUInt32(uint32_t field) const;
-  void SetUInt32(uint32_t field, uint32_t val) const;
+  void SetUInt32(uint32_t field, uint32_t val);
 
   std::string GetString(uint32_t field) const;
   void SetStringRef(uint32_t field, const std::string& str);

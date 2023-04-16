@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "dbc.h"
+#include "DBC/dbchandler.h"
 
 int main() {
   DBCHandler handler;

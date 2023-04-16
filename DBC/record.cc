@@ -1,9 +1,11 @@
-#include "record.h"
+#include "dbc/record.h"
 
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string>
+
+#include "dbc/dbchandler.h"
 
 float Record::GetFloat(uint32_t field) const {
   uint32_t index = field - 1;
@@ -11,7 +13,7 @@ float Record::GetFloat(uint32_t field) const {
   return *reinterpret_cast<float*>(pointer_ + sizeof(uint32_t) * index);
 }
 
-void Record::SetFloat(uint32_t field, float val) const {
+void Record::SetFloat(uint32_t field, float val) {
   uint32_t index = field - 1;
   ValidateIndex(index);
   *reinterpret_cast<float*>(pointer_ + sizeof(uint32_t) * index) = val;
@@ -23,7 +25,7 @@ uint32_t Record::GetUInt32(uint32_t field) const {
   return *reinterpret_cast<uint32_t*>(pointer_ + sizeof(uint32_t) * index);
 }
 
-void Record::SetUInt32(uint32_t field, uint32_t val) const {
+void Record::SetUInt32(uint32_t field, uint32_t val) {
   uint32_t index = field - 1;
   ValidateIndex(index);
   *reinterpret_cast<uint32_t*>(pointer_ + sizeof(uint32_t) * index) = val;
