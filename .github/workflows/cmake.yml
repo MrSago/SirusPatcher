@@ -12,21 +12,14 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
 
     steps:
-      - uses: msys2/setup-msys2@v2
+      - uses: actions/checkout@v3
+
+      - name: Install correct version of mingw
+        uses: crazy-max/ghaction-chocolatey@v1
         with:
-          msystem: mingw64
-          install: >-
-            git
-            make
-          pacboy: >-
-            toolchain:p
-            cmake:p
-            ninja:p
+          args: install mingw --version=8.1.0  -y
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.1.0
@@ -34,16 +27,14 @@ jobs:
           version: "6.3.1"
           host: "windows"
           target: "desktop"
-          arch: "win64_mingw"
+          arch: "win64_mingw81"
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"
-
-      - uses: actions/checkout@v3
 
       - name: Configure CMake
         env:
           CMAKE_PREFIX_PATH: ${{env.Qt6_Dir}}
-        run: cmake -DCMAKE_PREFIX_PATH=${{env.Qt6_Dir}} -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: cmake -DCMAKE_PREFIX_PATH=${{env.Qt6_Dir}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -B ${{github.workspace}}/build -G "CodeBlocks - MinGW Makefiles"
 
       - name: Build
-        run: cmake --build build --config ${{env.BUILD_TYPE}}
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
