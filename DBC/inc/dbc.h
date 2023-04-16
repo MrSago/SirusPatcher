@@ -1,16 +1,15 @@
-
 #ifndef _DBC_H_
 #define _DBC_H_
 
 #include <cstdint>
-#include <string>
 #include <map>
+#include <string>
 
 #include "record.h"
 
 class Record;
 
-enum class DBCError {
+enum DBCError : errno_t {
   kSuccess = 0,
   kFileNotOpened,
   kFileOpenError,
@@ -38,11 +37,11 @@ class DBCHandler {
   DBCHandler();
   ~DBCHandler();
 
-  DBCError Load(const std::string& filename);
-  DBCError Save(const std::string& filename);
+  errno_t Load(const std::string& filename);
+  errno_t Save(const std::string& filename) const;
   void Clear();
 
-  Record operator[](uint32_t index);
+  Record operator[](uint32_t index) const;
   Record GetRecordById(uint32_t record_id);
   Record AllocateNewRecord();
 
