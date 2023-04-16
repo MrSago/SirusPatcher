@@ -1,26 +1,38 @@
 #include <iostream>
+#include <vector>
 
-#include "DBC/dbchandler.h"
+#include "dbc/dbcchanger.h"
 
 int main() {
-  DBCHandler handler;
-  if (handler.Load("SpellVisualEffectName.dbc") != DBCError::kSuccess) {
-    std::cout << "Failed to load DBC file\n";
-    return 1;
-  }
+  const std::string kSpellDBCPath = "Spell.dbc";
+  const std::string kDstSpellDBCPath = "Test.dbc";
+  std::vector<ReplaceFields> repl = {
+      {10, {{2, 333}, {3, 777}}},
+      {12, {{3, 444}, {4, 888}, {5, 0x12345678}}}
+  };
 
-  Record rec1 = handler.GetRecordById(7673);
-  Record rec2 = handler.GetRecordById(7674);
+  DBCChanger creator;
+  creator.ChangeDBCFile(kDstSpellDBCPath, kSpellDBCPath, repl,
+                        DBCTableType::kSpell);
 
-  std::cout << rec1.GetString(2) << '\n';
-  std::cout << rec2.GetString(2) << '\n';
+  // DBCHandler handler;
+  // if (handler.Load("SpellVisualEffectName.dbc") != DBCError::kSuccess) {
+  //   std::cout << "Failed to load DBC file\n";
+  //   return 1;
+  // }
 
-  rec1.SetStringRef(2, "test");
+  // Record rec1 = handler.GetRecordById(7673);
+  // Record rec2 = handler.GetRecordById(6);
 
-  std::cout << rec1.GetString(2) << '\n';
-  std::cout << rec2.GetString(2) << '\n';
+  // std::cout << rec1.GetString(2) << '\n';
+  // std::cout << rec2.GetString(3) << '\n';
 
-  handler.Save("test.dbc");
+  // rec2.SetStringRef(3, "test");
+
+  // std::cout << rec1.GetString(2) << '\n';
+  // std::cout << rec2.GetString(3) << '\n';
+
+  // handler.Save("test.dbc");
 
   return 0;
 }

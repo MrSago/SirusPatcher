@@ -1,5 +1,6 @@
 #include "dbc/dbchandler.h"
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <stdexcept>
@@ -9,7 +10,7 @@ DBCHandler::DBCHandler() : dbc_(nullptr) {}
 
 DBCHandler::~DBCHandler() { Clear(); }
 
-errno_t DBCHandler::Load(const std::string& filename) {
+DBCError DBCHandler::Load(const std::string& filename) {
   Clear();
 
   std::ifstream file(filename, std::ios::binary);
@@ -36,7 +37,7 @@ errno_t DBCHandler::Load(const std::string& filename) {
   return DBCError::kSuccess;
 }
 
-errno_t DBCHandler::Save(const std::string& filename) const {
+DBCError DBCHandler::Save(const std::string& filename) {
   if (!dbc_) {
     return DBCError::kFileNotOpened;
   }
@@ -55,8 +56,6 @@ errno_t DBCHandler::Save(const std::string& filename) const {
 }
 
 void DBCHandler::Clear() {
-  record_id_map_.clear();
-
   if (!dbc_) return;
 
   if (dbc_->records) delete[] dbc_->records;
@@ -66,11 +65,10 @@ void DBCHandler::Clear() {
   dbc_ = nullptr;
 }
 
-Record DBCHandler::operator[](uint32_t index) const {
+Record DBCHandler::operator[](uint32_t index) {
   if (!dbc_) {
     throw std::runtime_error("DBC file not opened");
   }
-
   if (index < 0 || index >= dbc_->header.record_count) {
     throw std::out_of_range("Record index out of range");
   }
@@ -82,25 +80,12 @@ Record DBCHandler::GetRecordById(uint32_t record_id) {
   if (!dbc_) {
     throw std::runtime_error("DBC file not opened");
   }
-
   if (record_id <= 0 ||
       record_id > Record(dbc_, dbc_->header.record_count - 1).GetUInt32(1)) {
     throw std::out_of_range("Record id out of range");
   }
 
-  if (record_id_map_.find(record_id) != record_id_map_.end()) {
-    return record_id_map_.at(record_id);
-  }
-
-  for (uint32_t i = 0; i < dbc_->header.record_count; ++i) {
-    Record record(dbc_, i);
-    if (record.GetUInt32(1) == record_id) {
-      record_id_map_.insert({record_id, record});
-      return record;
-    }
-  }
-
-  return Record(dbc_, dbc_->header.record_count - 1);
+  return BinSearchRecord(record_id);
 }
 
 Record DBCHandler::AllocateNewRecord() {
@@ -119,4 +104,24 @@ Record DBCHandler::AllocateNewRecord() {
   record.SetUInt32(1, id);
 
   return record;
+}
+
+Record DBCHandler::BinSearchRecord(uint32_t record_id) {
+  uint32_t left = 0;
+  uint32_t right = dbc_->header.record_count - 1;
+  
+  while (left <= right) {
+    uint32_t mid = (left + right) / 2;
+    Record record(dbc_, mid);
+    uint32_t id = record.GetUInt32(1);
+    if (id == record_id) {
+      return record;
+    } else if (id < record_id) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  throw std::out_of_range("Record id not found");
 }

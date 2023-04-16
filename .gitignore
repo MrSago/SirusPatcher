@@ -1,3 +1,6 @@
 .vscode
 build
 *.dbc
+MPQEditor.exe
+Profiles.ini
+MyDbcEditor.exe
