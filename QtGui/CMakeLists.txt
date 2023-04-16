@@ -1,5 +1,4 @@
 set(CMAKE_PREFIX_PATH "C:/Qt/6.3.1/mingw_64")
-# set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -24,7 +23,7 @@ endif()
 
 target_include_directories(QtGui PRIVATE ${SirusPatcher_SOURCE_DIR})
 
-target_link_libraries(QtGui PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(QtGui PRIVATE dbc Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(QtGui PROPERTIES
     WIN32_EXECUTABLE TRUE
