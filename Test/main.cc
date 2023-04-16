@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "dbc/dbccreator.h"
+#include "dbc/dbcchanger.h"
 
 int main() {
   const std::string kSpellDBCPath = "Spell.dbc";
@@ -11,8 +11,8 @@ int main() {
       {12, {{3, 444}, {4, 888}, {5, 0x12345678}}}
   };
 
-  DBCCreator creator;
-  creator.CreateDBCFile(kDstSpellDBCPath, kSpellDBCPath, repl,
+  DBCChanger creator;
+  creator.ChangeDBCFile(kDstSpellDBCPath, kSpellDBCPath, repl,
                         DBCTableType::kSpell);
 
   // DBCHandler handler;

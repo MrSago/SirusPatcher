@@ -1,32 +1,31 @@
-#include "dbc/dbccreator.h"
+#include "dbc/dbcchanger.h"
 
-#include <fstream>
-#include <iostream>
 #include <map>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "dbc/dbchandler.h"
 
-DBCCreator::DBCCreator() {
-  dbc_method_map_[DBCTableType::kSpell] = &DBCCreator::CreateSpellDBC;
+DBCChanger::DBCChanger() {
+  dbc_method_map_[DBCTableType::kSpell] = &DBCChanger::ChangeSpellDBC;
 }
 
-DBCCreator::~DBCCreator() = default;
+DBCChanger::~DBCChanger() = default;
 
-void DBCCreator::CreateDBCFile(const std::string& dst_path,
+void DBCChanger::ChangeDBCFile(const std::string& dst_path,
                                const std::string& src_path,
-                               const std::vector<ReplaceFields>& replace, DBCTableType type) {
+                               const std::vector<ReplaceFields>& replace,
+                               DBCTableType type) {
   (this->*(dbc_method_map_[type]))(dst_path, src_path, replace);
 }
 
-void DBCCreator::CreateSpellDBC(const std::string& dst_path,
+void DBCChanger::ChangeSpellDBC(const std::string& dst_path,
                                 const std::string& src_path,
                                 const std::vector<ReplaceFields>& replace) {
   DBCHandler handler;
   if (handler.Load(src_path) != DBCError::kSuccess) {
-    std::cout << "Failed to load DBC file\n";
-    return;
+    throw std::runtime_error("Failed to load DBC file");
   }
 
   for (const auto& [record_id, fields] : replace) {
