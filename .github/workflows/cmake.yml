@@ -19,8 +19,14 @@ jobs:
     steps:
       - uses: msys2/setup-msys2@v2
         with:
-            install: mingw-w64-x86_64-toolchain
             msystem: mingw64
+            install: >-
+              git
+              make
+            pacboy: >-
+              toolchain:p
+              cmake:p
+              ninja:p
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.1.0
@@ -33,10 +39,6 @@ jobs:
           install-deps: 'true'
 
       - uses: actions/checkout@v3
-
-      - uses: jwlawson/actions-setup-cmake@v1.13
-          with:
-            cmake-version: 'latest'
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
