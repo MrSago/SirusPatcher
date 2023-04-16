@@ -2,6 +2,7 @@
 build
 *.dbc
 *CMakeLists.txt.user
+QtGui/qtprefixpath.cmake
 MPQEditor.exe
 Profiles.ini
 MyDbcEditor.exe

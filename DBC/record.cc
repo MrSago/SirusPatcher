@@ -1,11 +1,11 @@
-#include "dbc/record.h"
+#include "DBC/record.h"
 
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string>
 
-#include "dbc/dbchandler.h"
+#include "DBC/dbchandler.h"
 
 float Record::GetFloat(uint32_t field) const {
   uint32_t index = field - 1;

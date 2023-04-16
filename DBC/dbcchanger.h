@@ -1,5 +1,5 @@
-#ifndef _DBC_CREATOR_H
-#define _DBC_CREATOR_H
+#ifndef _DBC_CREATOR_H_
+#define _DBC_CREATOR_H_
 
 #include <cstdint>
 #include <map>
@@ -26,4 +26,4 @@ class DBCChanger {
                      const std::vector<ReplaceFields>& replace);
 };
 
-#endif  // _DBC_CREATOR_H
+#endif  // _DBC_CREATOR_H_

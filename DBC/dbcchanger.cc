@@ -1,11 +1,11 @@
-#include "dbc/dbcchanger.h"
+#include "DBC/dbcchanger.h"
 
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "dbc/dbchandler.h"
+#include "DBC/dbchandler.h"
 
 DBCChanger::DBCChanger() = default;
 

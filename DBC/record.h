@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "dbc/dbchandler.h"
+#include "DBC/dbchandler.h"
 
 class DBCHandler;
 struct DBCFile;
