@@ -2,47 +2,34 @@ name: CMake
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
   build:
     runs-on: windows-latest
-    defaults:
-        run:
-            shell: msys2 {0}
 
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-            install: mingw-w64-x86_64-toolchain
-            msystem: mingw64
-            release: true
+      - uses: actions/checkout@v3
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v3.1.0
         with:
-          version: '6.2.6'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_mingw73'
-          dir: '${{github.workspace}}/qt/'
-          install-deps: 'true'
-
-      - name: List files in Qt
-        run: find ${{env.Qt6_Dir}}
-
-      - uses: actions/checkout@v3
+          version: "6.3.1"
+          host: "windows"
+          target: "desktop"
+          arch: 'win64_msvc2019_64'
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"
 
       - name: Configure CMake
         env:
           CMAKE_PREFIX_PATH: ${{env.Qt6_Dir}}
-        run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - MinGW Makefiles" -B '${{github.workspace}}'/build
+        run: cmake -DCMAKE_PREFIX_PATH=${{env.Qt6_Dir}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -B ${{github.workspace}}\build
 
       - name: Build
-        run: cmake --build '${{github.workspace}}'/build --target QtGui
+        run: cmake --build ${{github.workspace}}\build --config ${{env.BUILD_TYPE}} --target ALL_BUILD

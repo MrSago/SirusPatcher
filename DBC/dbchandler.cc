@@ -1,4 +1,4 @@
-#include "dbc/dbchandler.h"
+#include "DBC/dbchandler.h"
 
 #include <algorithm>
 #include <cstring>
@@ -109,7 +109,7 @@ Record DBCHandler::AllocateNewRecord() {
 Record DBCHandler::BinSearchRecord(uint32_t record_id) {
   uint32_t left = 0;
   uint32_t right = dbc_->header.record_count - 1;
-  
+
   while (left <= right) {
     uint32_t mid = (left + right) / 2;
     Record record(dbc_, mid);

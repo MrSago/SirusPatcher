@@ -1,4 +1,8 @@
-set(CMAKE_PREFIX_PATH "C:/Qt/6.3.1/mingw_64")
+set(QT_PREFIX_PATH_CMAKE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/qtprefixpath.cmake)
+
+if (NOT DEFINED CMAKE_PREFIX_PATH AND EXISTS ${QT_PREFIX_PATH_CMAKE_FILE})
+    include(${QT_PREFIX_PATH_CMAKE_FILE})
+endif()
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -7,23 +11,23 @@ set(CMAKE_AUTORCC ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-set(PROJECT_SOURCES
-        main.cpp
-        siruspatcherwindow.cpp
-        siruspatcherwindow.h
-        siruspatcherwindow.ui
+file(GLOB TARGET_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(QtGui
         MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
+        ${TARGET_SOURCES}
     )
 endif()
 
 target_include_directories(QtGui PRIVATE ${SirusPatcher_SOURCE_DIR})
 
-target_link_libraries(QtGui PRIVATE dbc Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(QtGui PRIVATE DBC Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(QtGui PROPERTIES
     WIN32_EXECUTABLE TRUE

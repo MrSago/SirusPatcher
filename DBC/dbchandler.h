@@ -1,11 +1,11 @@
-#ifndef _DBC_H_
-#define _DBC_H_
+#ifndef _DBC_HANDLER_H_
+#define _DBC_HANDLER_H_
 
 #include <cstdint>
 #include <map>
 #include <string>
 
-#include "dbc/record.h"
+#include "DBC/record.h"
 
 class Record;
 
@@ -53,4 +53,4 @@ class DBCHandler {
   DBCFile* dbc_;
 };
 
-#endif  // _DBC_H_
+#endif  // _DBC_HANDLER_H_
