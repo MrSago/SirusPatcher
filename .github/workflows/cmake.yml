@@ -7,7 +7,6 @@ on:
     branches: [ "master" ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -22,15 +21,15 @@ jobs:
         with:
             install: mingw-w64-x86_64-toolchain
             msystem: mingw64
-            release: true
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3.1.0
         with:
           version: '6.2.0'
           host: 'windows'
+          os_name: 'windows'
           target: 'desktop'
-          arch: 'win64_mingw73'
+          arch: 'win64_mingw810'
           dir: '${{github.workspace}}/qt/'
           install-deps: 'true'
 
