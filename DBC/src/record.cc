@@ -1,4 +1,3 @@
-
 #include "record.h"
 
 #include <cstdint>
@@ -41,7 +40,7 @@ std::string Record::GetString(uint32_t field) const {
   return std::string(string_block_pointer);
 }
 
-void Record::SetStringRef(uint32_t field, const std::string& str) const {
+void Record::SetStringRef(uint32_t field, const std::string& str) {
   ValidateIndex(field - 1);
 
   stringref offset = GetUInt32(field);
@@ -55,7 +54,7 @@ void Record::SetStringRef(uint32_t field, const std::string& str) const {
   strcpy(string_block_pointer, str.c_str());
 }
 
-void Record::AddStringRef(uint32_t field, const std::string& str) const {
+void Record::AddStringRef(uint32_t field, const std::string& str) {
   ValidateIndex(field - 1);
   stringref offset = dbc_->header.string_block_size;
   SetUInt32(field, offset);

@@ -1,4 +1,3 @@
-
 #include "dbc.h"
 
 #include <cstring>
@@ -8,7 +7,7 @@ DBCHandler::DBCHandler() : dbc_(nullptr) {}
 
 DBCHandler::~DBCHandler() { Clear(); }
 
-DBCError DBCHandler::Load(const std::string& filename) {
+errno_t DBCHandler::Load(const std::string& filename) {
   Clear();
 
   std::ifstream file(filename, std::ios::binary);
@@ -35,7 +34,7 @@ DBCError DBCHandler::Load(const std::string& filename) {
   return DBCError::kSuccess;
 }
 
-DBCError DBCHandler::Save(const std::string& filename) {
+errno_t DBCHandler::Save(const std::string& filename) const {
   if (!dbc_) {
     return DBCError::kFileNotOpened;
   }
@@ -54,6 +53,8 @@ DBCError DBCHandler::Save(const std::string& filename) {
 }
 
 void DBCHandler::Clear() {
+  record_id_map_.clear();
+
   if (!dbc_) return;
 
   if (dbc_->records) delete[] dbc_->records;
@@ -63,7 +64,11 @@ void DBCHandler::Clear() {
   dbc_ = nullptr;
 }
 
-Record DBCHandler::operator[](uint32_t index) {
+Record DBCHandler::operator[](uint32_t index) const {
+  if (!dbc_) {
+    throw std::runtime_error("DBC file not opened");
+  }
+
   if (index < 0 || index >= dbc_->header.record_count) {
     throw std::out_of_range("Record index out of range");
   }
@@ -72,6 +77,10 @@ Record DBCHandler::operator[](uint32_t index) {
 }
 
 Record DBCHandler::GetRecordById(uint32_t record_id) {
+  if (!dbc_) {
+    throw std::runtime_error("DBC file not opened");
+  }
+
   if (record_id <= 0 ||
       record_id > Record(dbc_, dbc_->header.record_count - 1).GetUInt32(1)) {
     throw std::out_of_range("Record id out of range");

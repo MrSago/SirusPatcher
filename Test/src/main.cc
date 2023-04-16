@@ -1,11 +1,13 @@
-
 #include <iostream>
 
 #include "dbc.h"
 
 int main() {
   DBCHandler handler;
-  handler.Load("SpellVisualEffectName.dbc");
+  if (handler.Load("SpellVisualEffectName.dbc") != DBCError::kSuccess) {
+    std::cout << "Failed to load DBC file\n";
+    return 1;
+  }
 
   Record rec1 = handler.GetRecordById(7673);
   Record rec2 = handler.GetRecordById(7674);
