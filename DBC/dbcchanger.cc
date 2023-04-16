@@ -7,25 +7,16 @@
 
 #include "dbc/dbchandler.h"
 
-DBCChanger::DBCChanger() {
-  dbc_method_map_[DBCTableType::kSpell] = &DBCChanger::ChangeSpellDBC;
-}
+DBCChanger::DBCChanger() = default;
 
 DBCChanger::~DBCChanger() = default;
 
-void DBCChanger::ChangeDBCFile(const std::string& dst_path,
+bool DBCChanger::ChangeDBCFile(const std::string& dst_path,
                                const std::string& src_path,
-                               const std::vector<ReplaceFields>& replace,
-                               DBCTableType type) {
-  (this->*(dbc_method_map_[type]))(dst_path, src_path, replace);
-}
-
-void DBCChanger::ChangeSpellDBC(const std::string& dst_path,
-                                const std::string& src_path,
-                                const std::vector<ReplaceFields>& replace) {
+                               const std::vector<ReplaceFields>& replace) {
   DBCHandler handler;
   if (handler.Load(src_path) != DBCError::kSuccess) {
-    throw std::runtime_error("Failed to load DBC file");
+    return false;
   }
 
   for (const auto& [record_id, fields] : replace) {
@@ -35,5 +26,8 @@ void DBCChanger::ChangeSpellDBC(const std::string& dst_path,
     }
   }
 
-  handler.Save(dst_path);
+  if (handler.Save(dst_path) != DBCError::kSuccess) {
+    return false;
+  }
+  return true;
 }
