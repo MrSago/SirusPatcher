@@ -2,6 +2,7 @@
 #define _SIRUSPATCHERWINDOW_H_
 
 #include <QMainWindow>
+#include <QWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -17,6 +18,6 @@ class SirusPatcherWindow : public QMainWindow {
   ~SirusPatcherWindow();
 
  private:
-  Ui::SirusPatcherWindow* ui;
+  Ui::SirusPatcherWindow* ui_;
 };
 #endif  // _SIRUSPATCHERWINDOW_H_
