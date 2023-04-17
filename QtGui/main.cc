@@ -1,10 +1,19 @@
 #include <QApplication>
+#include <QPixmap>
 
 #include "QtGui/siruspatcherwindow.h"
+#include "QtGui/splashloadingscreen.h"
 
 int main(int argc, char* argv[]) {
-  QApplication a(argc, argv);
-  SirusPatcherWindow w;
-  w.show();
-  return a.exec();
+  QApplication app(argc, argv);
+
+  QPixmap pixmap("://images/splash-screen.png");
+  SplashLoadingScreen loading_screen(pixmap, Qt::WindowStaysOnTopHint);
+  loading_screen.Start(&app);
+
+  SirusPatcherWindow window;
+  window.show();
+  loading_screen.finish(&window);
+
+  return app.exec();
 }
