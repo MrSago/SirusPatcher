@@ -7,7 +7,7 @@
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
-  QPixmap pixmap("://images/splash-screen.png");
+  QPixmap pixmap("://resources/images/splash-screen.png");
   SplashLoadingScreen loading_screen(pixmap, Qt::WindowStaysOnTopHint);
   loading_screen.Start(&app);
 

@@ -27,7 +27,7 @@ class SplashLoadingScreen : public QSplashScreen {
   const QPoint kProgramNamePoint = {410, 50};
   const int kProgramNameSize = 20;
 
-  const QString kIconFile = "://icons/window.ico";
+  const QString kIconFile = "://resources/icons/window.ico";
   const QPoint kIconPoint = {478, 80};
 
   const QString kDisclaimerText =

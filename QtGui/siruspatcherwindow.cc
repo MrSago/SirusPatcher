@@ -15,7 +15,9 @@
 #include "QtGui/proginfogetter.h"
 
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
-    : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow) {
+    : QMainWindow(parent),
+      ui_(new Ui::SirusPatcherWindow),
+      spell_table_(nullptr) {
   ui_->setupUi(this);
 
   SetupWindow();
@@ -24,7 +26,7 @@ SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
 }
 
 SirusPatcherWindow::~SirusPatcherWindow() {
-  delete spell_table_;
+  if (spell_table_) delete spell_table_;
   delete ui_;
 }
 

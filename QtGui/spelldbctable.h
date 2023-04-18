@@ -15,10 +15,11 @@ class SpellDBCTable {
 
  private:
   void InitHeaders();
-  void InitFields(DBCHandler& handler, QJsonArray& ids);
+  void InitFields(QJsonArray& ids);
   QWidget* CreateCheckBox(bool default_state);
 
   QTableWidget* table_;
+  DBCHandler handler_;
 };
 
 #endif  // _SPELLDBCTABLE_H_

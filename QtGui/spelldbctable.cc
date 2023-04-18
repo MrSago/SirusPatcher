@@ -10,25 +10,22 @@
 #include <QTableWidget>
 
 #include "DBC/dbchandler.h"
-#include "DBC/record.h"
 
 SpellDBCTable::SpellDBCTable(QTableWidget* table) : table_(table) {}
 
 bool SpellDBCTable::SetupTable(const QString& dbc_path,
                                const QString& json_path) {
-  DBCHandler handler;
-  if (handler.Load(dbc_path.toStdString()) != DBCError::kSuccess) {
+  if (handler_.Load(dbc_path.toStdString()) != DBCError::kSuccess) {
     return false;
   }
 
   QFile json_file(json_path);
-  if (!json_file.open(QIODevice::ReadOnly)) {
-    return false;
-  }
+  if (!json_file.open(QIODevice::ReadOnly)) return false;
+
   QJsonArray ids_array = QJsonDocument::fromJson(json_file.readAll()).array();
 
   InitHeaders();
-  InitFields(handler, ids_array);
+  InitFields(ids_array);
 
   return true;
 }
@@ -44,7 +41,7 @@ void SpellDBCTable::InitHeaders() {
   table_->setHorizontalHeaderLabels(headers);
 }
 
-void SpellDBCTable::InitFields(DBCHandler& handler, QJsonArray& ids) {
+void SpellDBCTable::InitFields(QJsonArray& ids) {
   table_->setRowCount(ids.count());
   for (int i = 0; i < ids.count(); ++i) {
     int id = ids[i].toInt();
@@ -54,7 +51,7 @@ void SpellDBCTable::InitFields(DBCHandler& handler, QJsonArray& ids) {
     table_->setItem(i, 1, id_item);
 
     QTableWidgetItem* description_item = new QTableWidgetItem(
-        QString::fromUtf8(handler.GetRecordById(id).GetString(145)));
+        QString::fromUtf8(handler_.GetRecordById(id).GetString(145)));
     table_->setItem(i, 2, description_item);
   }
 }

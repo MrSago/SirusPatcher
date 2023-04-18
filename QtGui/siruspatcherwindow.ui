@@ -32,7 +32,7 @@
    <string>Sirus Patcher</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/icons/window.ico</normaloff>:/icons/window.ico</iconset>
   </property>
   <widget class="QWidget" name="CentralWidget">
@@ -58,7 +58,7 @@
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/icons/window.ico);</string>
+      <string notr="true">image: url(://resources/icons/window.ico);</string>
      </property>
      <property name="text">
       <string/>
@@ -130,7 +130,7 @@
       <string notr="true">QPushButton
 {
    
-	image: url(:/icons/close.png);
+	image: url(://resources/icons/close.png);
 }
 QPushButton:hover
 {
@@ -167,7 +167,7 @@ QPushButton:hover
       <string notr="true">QPushButton
 {
    
-	image: url(:/icons/hide.png);
+	image: url(://resources/icons/hide.png);
 }
 QPushButton:hover
 {
@@ -207,7 +207,7 @@ QPushButton:hover
      <enum>QTabWidget::West</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="SettingsTab">
      <property name="styleSheet">
@@ -340,8 +340,6 @@ QPushButton:hover
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
