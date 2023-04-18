@@ -1,7 +1,9 @@
 #ifndef _SIRUSPATCHERWINDOW_H_
 #define _SIRUSPATCHERWINDOW_H_
 
+#include <QLabel>
 #include <QMainWindow>
+#include <QString>
 #include <QWindow>
 
 QT_BEGIN_NAMESPACE
@@ -17,7 +19,16 @@ class SirusPatcherWindow : public QMainWindow {
   SirusPatcherWindow(QWidget* parent = nullptr);
   ~SirusPatcherWindow();
 
+ private slots:
+  void OnChooseDirectoryButtonClicked();
+
  private:
+  void SetupWindow();
+  void SetupConnections();
+  void SetupTabLabels();
+  QLabel* TabLabel(const QString& text);
+
   Ui::SirusPatcherWindow* ui_;
+  QString game_dir_;
 };
 #endif  // _SIRUSPATCHERWINDOW_H_

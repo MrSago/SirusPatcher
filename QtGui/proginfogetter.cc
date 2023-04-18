@@ -17,7 +17,6 @@ const QString& ProgInfoGetter::GetVersion() {
 
   QFile file("://text/version");
   file.open(QIODevice::ReadOnly);
-
   ProgInfoGetter::version_ = file.readAll();
   return ProgInfoGetter::version_;
 }
