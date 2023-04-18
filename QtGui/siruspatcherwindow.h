@@ -4,7 +4,10 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QString>
+#include <QTableWidget>
 #include <QWindow>
+
+#include "QtGui/spelldbctable.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,6 +32,6 @@ class SirusPatcherWindow : public QMainWindow {
   QLabel* TabLabel(const QString& text);
 
   Ui::SirusPatcherWindow* ui_;
-  QString game_dir_;
+  SpellDBCTable* spell_table_;
 };
 #endif  // _SIRUSPATCHERWINDOW_H_

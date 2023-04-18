@@ -1,11 +1,14 @@
 #include "QtGui/siruspatcherwindow.h"
 
+#include <QCheckBox>
 #include <QFileDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QTabBar>
+#include <QTableWidget>
 #include <QWindow>
 
 #include "./ui_siruspatcherwindow.h"
@@ -20,7 +23,10 @@ SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
   SetupTabLabels();
 }
 
-SirusPatcherWindow::~SirusPatcherWindow() { delete ui_; }
+SirusPatcherWindow::~SirusPatcherWindow() {
+  delete spell_table_;
+  delete ui_;
+}
 
 void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
   QString started_path;
@@ -30,19 +36,29 @@ void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
     started_path = QDir::currentPath();
   }
 
-  game_dir_ = QFileDialog::getExistingDirectory(
+  QString game_dir = QFileDialog::getExistingDirectory(
       this, "Выбор директории с игрой", started_path,
       QFileDialog::ShowDirsOnly);
-  if (game_dir_.isEmpty()) return;
+  if (game_dir.isEmpty()) return;
 
-  if (!QFile::exists(game_dir_ + "/run.exe")) {
+  if (!QFile::exists(game_dir + "/run.exe")) {
     QMessageBox::critical(this, "Ошибка выбора директории",
                           "Файл запуска игры run.exe не обнаружен!");
-  } else {
-    ui_->DirectoryLine->setText(game_dir_);
-    for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
-      ui_->MainTabWidget->setTabEnabled(i, true);
-    }
+    return;
+  }
+
+  ui_->DirectoryLine->setText(game_dir);
+
+  // TODO:
+  // Extract DBC files from MPQ...
+
+  // ...
+
+  spell_table_ = new SpellDBCTable(ui_->SpellTableWidget);
+  spell_table_->SetupTable("./Spell.dbc", "://dbc/Spell.dbc.json");
+
+  for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
+    ui_->MainTabWidget->setTabEnabled(i, true);
   }
 }
 
@@ -69,9 +85,9 @@ void SirusPatcherWindow::SetupTabLabels() {
   ui_->MainTabWidget->tabBar()->setTabButton(2, QTabBar::LeftSide,
                                              TabLabel("О программе"));
 
-  for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
-    ui_->MainTabWidget->setTabEnabled(i, false);
-  }
+  //  for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
+  //    ui_->MainTabWidget->setTabEnabled(i, false);
+  //  }
 }
 
 QLabel* SirusPatcherWindow::TabLabel(const QString& text) {
