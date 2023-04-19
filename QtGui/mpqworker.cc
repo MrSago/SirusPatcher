@@ -1,9 +1,9 @@
-#include "mpqworker.h"
+#include "QtGui/mpqworker.h"
 
-#include <QDir>
 #include <QFile>
 #include <QString>
 #include <QStringList>
+#include <string>
 
 #include "external/include/StormLib.h"
 
@@ -40,8 +40,7 @@ bool MPQWorker::ExtractDBCFiles(const QStringList& files,
 }
 
 bool MPQWorker::ArchiveDBCFiles(const QStringList& files,
-                                const QString& game_dir,
-                                const QString& save_dir) {
+                                const QString& game_dir) {
   QFile::remove(game_dir + '/' + kExportPatchDirectory);
 
   std::string exported_mpq_string =

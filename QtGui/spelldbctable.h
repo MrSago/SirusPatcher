@@ -11,8 +11,10 @@
 
 class SpellDBCTable final : public AbstractDBCTable {
  public:
-  SpellDBCTable(QTableWidget* table);
-  bool SetupTable(const QString& dbc_path, const QString& json_path) override;
+  SpellDBCTable(QTableWidget* table, const QString& dbc_path,
+                const QString& json_path);
+  bool SetupTableFromFile() override;
+  bool WriteValuesToFile() override;
 
  private:
   void InitHeaders() override;

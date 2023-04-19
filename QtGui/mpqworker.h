@@ -2,7 +2,7 @@
 #define _MPQWORKER_H_
 
 #include <QString>
-#include <QVector>
+#include <QStringList>
 
 class MPQWorker {
  public:
@@ -11,8 +11,8 @@ class MPQWorker {
 
   static bool ExtractDBCFiles(const QStringList& files, const QString& game_dir,
                               const QString& save_dir);
-  static bool ArchiveDBCFiles(const QStringList& files, const QString& game_dir,
-                              const QString& save_dir);
+  static bool ArchiveDBCFiles(const QStringList& files,
+                              const QString& game_dir);
 
  private:
   MPQWorker();

@@ -1,6 +1,7 @@
 #include "QtGui/proginfogetter.h"
 
 #include <QFile>
+#include <QIODevice>
 #include <QString>
 
 const QString ProgInfoGetter::progname_ = "Sirus Patcher";

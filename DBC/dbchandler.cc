@@ -34,6 +34,8 @@ DBCError DBCHandler::Load(const std::string& filename) {
   dbc_->string_block = new char[dbc_->header.string_block_size];
   file.read(dbc_->string_block, dbc_->header.string_block_size);
 
+  InitRecordMap();
+
   return DBCError::kSuccess;
 }
 
@@ -56,6 +58,8 @@ DBCError DBCHandler::Save(const std::string& filename) {
 }
 
 void DBCHandler::Clear() {
+  record_map_.clear();
+
   if (!dbc_) return;
 
   if (dbc_->records) delete[] dbc_->records;
@@ -69,8 +73,10 @@ Record DBCHandler::operator[](uint32_t index) {
   if (!dbc_) {
     throw std::runtime_error("DBC file not opened");
   }
+
   if (index < 0 || index >= dbc_->header.record_count) {
-    throw std::out_of_range("Record index out of range");
+    throw std::out_of_range("Record index out of range: " +
+                            std::to_string(index));
   }
 
   return Record(dbc_, index);
@@ -80,12 +86,19 @@ Record DBCHandler::GetRecordById(uint32_t record_id) {
   if (!dbc_) {
     throw std::runtime_error("DBC file not opened");
   }
+
   if (record_id <= 0 ||
       record_id > Record(dbc_, dbc_->header.record_count - 1).GetUInt32(1)) {
-    throw std::out_of_range("Record id out of range");
+    throw std::out_of_range("Record id out of range: " +
+                            std::to_string(record_id));
   }
 
-  return BinSearchRecord(record_id);
+  if (!record_map_.contains(record_id)) {
+    throw std::out_of_range("Record id not found: " +
+                            std::to_string(record_id));
+  }
+
+  return record_map_.at(record_id);
 }
 
 Record DBCHandler::AllocateNewRecord() {
@@ -101,27 +114,17 @@ Record DBCHandler::AllocateNewRecord() {
 
   Record record(dbc_, index);
   uint32_t id = Record(dbc_, index - 1).GetUInt32(1) + 1;
+  while (record_map_.contains(id)) ++id;
+  record_map_.insert({id, record});
   record.SetUInt32(1, id);
 
   return record;
 }
 
-Record DBCHandler::BinSearchRecord(uint32_t record_id) {
-  uint32_t left = 0;
-  uint32_t right = dbc_->header.record_count - 1;
-
-  while (left <= right) {
-    uint32_t mid = (left + right) / 2;
-    Record record(dbc_, mid);
+void DBCHandler::InitRecordMap() {
+  for (uint32_t i = 0; i < dbc_->header.record_count; ++i) {
+    Record record = Record(dbc_, i);
     uint32_t id = record.GetUInt32(1);
-    if (id == record_id) {
-      return record;
-    } else if (id < record_id) {
-      left = mid + 1;
-    } else {
-      right = mid - 1;
-    }
+    record_map_.insert({id, record});
   }
-
-  throw std::out_of_range("Record id not found");
 }

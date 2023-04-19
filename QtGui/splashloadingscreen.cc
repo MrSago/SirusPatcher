@@ -1,9 +1,10 @@
-#include "splashloadingscreen.h"
+#include "QtGui/splashloadingscreen.h"
 
 #include <QApplication>
 #include <QElapsedTimer>
 #include <QEvent>
 #include <QFont>
+#include <QObject>
 #include <QPainter>
 #include <QPixmap>
 #include <QRectF>

@@ -25,14 +25,22 @@ class SirusPatcherWindow : public QMainWindow {
 
  public slots:
   void OnChooseDirectoryButtonClicked();
+  void OnCreatePatchButtonClicked();
+  void OnEnableAllCBSPellButtonClicked();
+  void OnDisableAllCBSpellButtonClicked();
+  void ProgressBarClear();
 
  private:
+  const QStringList kDbcFileList = {"Spell.dbc" /*Another.dbc*/};
+
   void SetupWindow();
   void SetupConnections();
   void SetupTabLabels();
   QLabel* TabLabel(const QString& text);
   bool ValidateGameDirectory(QString& dir);
-  bool SetubTables();
+  bool SetupTables();
+  void ReloadProgramState();
+  void SetTableCheckBoxes(QTableWidget* table, Qt::CheckState state);
 
   Ui::SirusPatcherWindow* ui_;
   AbstractDBCTable* spell_table_;
