@@ -1,17 +1,21 @@
 #include "spelldbctable.h"
 
+#include <QCheckBox>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QIODevice>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QString>
 #include <QStringList>
 #include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QWidget>
 
 #include "DBC/dbchandler.h"
 
-SpellDBCTable::SpellDBCTable(QTableWidget* table) : table_(table) {}
+SpellDBCTable::SpellDBCTable(QTableWidget* table) : AbstractDBCTable(table) {}
 
 bool SpellDBCTable::SetupTable(const QString& dbc_path,
                                const QString& json_path) {

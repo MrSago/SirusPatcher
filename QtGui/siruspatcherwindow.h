@@ -7,6 +7,7 @@
 #include <QTableWidget>
 #include <QWindow>
 
+#include "QtGui/abstractdbctable.h"
 #include "QtGui/spelldbctable.h"
 
 QT_BEGIN_NAMESPACE
@@ -22,7 +23,7 @@ class SirusPatcherWindow : public QMainWindow {
   SirusPatcherWindow(QWidget* parent = nullptr);
   ~SirusPatcherWindow();
 
- private slots:
+ public slots:
   void OnChooseDirectoryButtonClicked();
 
  private:
@@ -30,8 +31,10 @@ class SirusPatcherWindow : public QMainWindow {
   void SetupConnections();
   void SetupTabLabels();
   QLabel* TabLabel(const QString& text);
+  bool ValidateGameDirectory(QString& dir);
+  bool SetubTables();
 
   Ui::SirusPatcherWindow* ui_;
-  SpellDBCTable* spell_table_;
+  AbstractDBCTable* spell_table_;
 };
 #endif  // _SIRUSPATCHERWINDOW_H_

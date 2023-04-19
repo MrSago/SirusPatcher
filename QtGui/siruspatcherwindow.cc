@@ -1,6 +1,7 @@
 #include "QtGui/siruspatcherwindow.h"
 
 #include <QCheckBox>
+#include <QDir>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -12,6 +13,8 @@
 #include <QWindow>
 
 #include "./ui_siruspatcherwindow.h"
+#include "QtGui/abstractdbctable.h"
+#include "QtGui/mpqworker.h"
 #include "QtGui/proginfogetter.h"
 
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
@@ -19,7 +22,6 @@ SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
       ui_(new Ui::SirusPatcherWindow),
       spell_table_(nullptr) {
   ui_->setupUi(this);
-
   SetupWindow();
   SetupConnections();
   SetupTabLabels();
@@ -41,27 +43,14 @@ void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
   QString game_dir = QFileDialog::getExistingDirectory(
       this, "Выбор директории с игрой", started_path,
       QFileDialog::ShowDirsOnly);
-  if (game_dir.isEmpty()) return;
-
-  if (!QFile::exists(game_dir + "/run.exe")) {
-    QMessageBox::critical(this, "Ошибка выбора директории",
-                          "Файл запуска игры run.exe не обнаружен!");
-    return;
-  }
-
+  if (!ValidateGameDirectory(game_dir)) return;
   ui_->DirectoryLine->setText(game_dir);
 
-  // TODO:
-  // Extract DBC files from MPQ...
+  if (!SetubTables()) return;
 
-  // ...
-
-  spell_table_ = new SpellDBCTable(ui_->SpellTableWidget);
-  spell_table_->SetupTable("./Spell.dbc", "://dbc/Spell.dbc.json");
-
-  for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
-    ui_->MainTabWidget->setTabEnabled(i, true);
-  }
+  // for (int i = 1; i < ui_->MainTabWidget->count() - 1; ++i) {
+  //   ui_->MainTabWidget->setTabEnabled(i, true);
+  // }
 }
 
 void SirusPatcherWindow::SetupWindow() {
@@ -100,4 +89,52 @@ QLabel* SirusPatcherWindow::TabLabel(const QString& text) {
   label->setAlignment(Qt::AlignCenter);
   label->setGeometry(0, 0, 150, 50);
   return label;
+}
+
+bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
+  if (dir.isEmpty()) return false;
+
+  QString run_dir = dir + "/run.exe";
+  if (!QFile::exists(run_dir)) {
+    QMessageBox::critical(this, "Ошибка выбора директории",
+                          "Файл запуска игры не обнаружен!\n"
+                          "Проверьте следующий путь:\n" +
+                              run_dir);
+    return false;
+  }
+
+  QString mpq_dir = dir + '/' + MPQWorker::kImportPatchDirectory;
+  if (!QFile::exists(mpq_dir)) {
+    QMessageBox::critical(this, "Ошибка выбора директории",
+                          "MPQ архив не обнаружен!\n"
+                          "Проверьте следующий путь:\n" +
+                              mpq_dir);
+    return false;
+  }
+
+  return true;
+}
+
+bool SirusPatcherWindow::SetubTables() {
+  const QStringList dbc_files = {"Spell.dbc" /*Another.dbc*/};
+
+  bool success = MPQWorker::ExtractDBCFiles(
+      dbc_files, ui_->DirectoryLine->text(), QDir::currentPath());
+  if (!success) {
+    QMessageBox::critical(
+        this, "Ошибка импорта DBC файлов!",
+        "Ошибка при импорте DBC файлов:\n" + dbc_files.join('\n'));
+    return false;
+  }
+
+  spell_table_ = new SpellDBCTable(ui_->SpellTableWidget);
+  success = spell_table_->SetupTable("./Spell.dbc",
+                                     "://resources/dbc/Spell.dbc.json");
+  if (!success) {
+    QMessageBox::critical(this, "Ошибка инициализации таблицы",
+                          "Ошибка при инициализации таблицы: SpellTable");
+    return false;
+  }
+
+  return true;
 }
