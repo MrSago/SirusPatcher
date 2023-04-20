@@ -9,10 +9,11 @@ class MPQWorker {
   static const QString kImportPatchDirectory;
   static const QString kExportPatchDirectory;
 
-  static bool ExtractDBCFiles(const QStringList& files, const QString& game_dir,
-                              const QString& save_dir);
-  static bool ArchiveDBCFiles(const QStringList& files,
-                              const QString& game_dir);
+  static bool ExtractDBCFiles(const QStringList& dbc_list,
+                              const QString& game_path,
+                              const QString& save_path);
+  static bool ArchiveDBCFiles(const QStringList& dbc_list,
+                              const QString& game_path);
 
  private:
   MPQWorker();

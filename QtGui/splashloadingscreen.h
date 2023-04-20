@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QPainter>
 #include <QPixmap>
 #include <QPoint>
 #include <QSplashScreen>
@@ -19,7 +20,7 @@ class SplashLoadingScreen : public QSplashScreen {
 
   const int kProgressPixelsX = 394;
   const int kProgressPixelsY = 369;
-  const int kProgressPixelsWidth = 233;
+  const int kProgressPixelsWidth = 237;
   const int kProgressPixelsHeight = 35;
 
   const QString kMainFont = "Segoe UI";

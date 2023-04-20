@@ -12,7 +12,7 @@ ProgInfoGetter::ProgInfoGetter() {}
 const QString& ProgInfoGetter::GetProgName() { return progname_; }
 
 const QString& ProgInfoGetter::GetVersion() {
-  if (ProgInfoGetter::version_.size()) {
+  if (ProgInfoGetter::version_.length()) {
     return ProgInfoGetter::version_;
   }
 

@@ -3,11 +3,11 @@
 
 #include <QLabel>
 #include <QMainWindow>
+#include <QMovie>
 #include <QString>
 #include <QTableWidget>
 #include <QWindow>
 
-#include "QtGui/abstractdbctable.h"
 #include "QtGui/spelldbctable.h"
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +33,11 @@ class SirusPatcherWindow : public QMainWindow {
  private:
   const QStringList kDbcFileList = {"Spell.dbc" /*Another.dbc*/};
 
+  const QString kUpdatedGifPath = "://resources/icons/refresh.gif";
+  const QString kCheckIconPath = "://resources/icons/check.png";
+  const QString kCrossIconPath = "://resources/icons/cross.png";
+  const QString kMinusIconPath = "://resources/icons/minus.png";
+
   void SetupWindow();
   void SetupConnections();
   void SetupTabLabels();
@@ -43,6 +48,7 @@ class SirusPatcherWindow : public QMainWindow {
   void SetTableCheckBoxes(QTableWidget* table, Qt::CheckState state);
 
   Ui::SirusPatcherWindow* ui_;
-  AbstractDBCTable* spell_table_;
+  SpellDBCTable* spell_table_;
+  QMovie* gif_;
 };
 #endif  // _SIRUSPATCHERWINDOW_H_

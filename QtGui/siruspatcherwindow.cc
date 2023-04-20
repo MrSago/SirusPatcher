@@ -7,73 +7,82 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QMovie>
+#include <QPixmap>
 #include <QPushButton>
 #include <QTabBar>
 #include <QTableWidget>
 #include <QWindow>
 
 #include "./ui_siruspatcherwindow.h"
-#include "QtGui/abstractdbctable.h"
 #include "QtGui/mpqworker.h"
 #include "QtGui/proginfogetter.h"
 
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
-    : QMainWindow(parent),
-      ui_(new Ui::SirusPatcherWindow),
-      spell_table_(nullptr) {
+    : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow) {
   ui_->setupUi(this);
+
   SetupWindow();
   SetupConnections();
   SetupTabLabels();
+
+  spell_table_ = new SpellDBCTable(ui_->SpellTableWidget);
 }
 
 SirusPatcherWindow::~SirusPatcherWindow() {
-  if (spell_table_) delete spell_table_;
+  delete spell_table_;
   delete ui_;
 }
 
 void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
-  QString started_path;
+  gif_ = new QMovie(kUpdatedGifPath);
+  gif_->start();
+  ui_->DirectoryCorrectStatus->setMovie(gif_);
+
+  QString started_dir;
   if (QDir(ui_->GameDirectoryLine->text()).exists()) {
-    started_path = ui_->GameDirectoryLine->text();
+    started_dir = ui_->GameDirectoryLine->text();
   } else {
-    started_path = QDir::currentPath();
+    started_dir = QDir::currentPath();
   }
 
   QString game_dir = QFileDialog::getExistingDirectory(
-      this, "Выбор директории с игрой", started_path,
-      QFileDialog::ShowDirsOnly);
-  if (!ValidateGameDirectory(game_dir)) return;
+      this, "Выбор директории с игрой", started_dir, QFileDialog::ShowDirsOnly);
+  if (!ValidateGameDirectory(game_dir)) {
+    if (started_dir != QDir::currentPath()) {
+      ui_->DirectoryCorrectStatus->setPixmap(QPixmap(kCheckIconPath));
+    } else {
+      ui_->DirectoryCorrectStatus->setPixmap(QPixmap(kCrossIconPath));
+    }
+    delete gif_;
+    return;
+  }
+  ui_->DirectoryCorrectStatus->setPixmap(QPixmap(kCheckIconPath));
 
   ReloadProgramState();
   ui_->GameDirectoryLine->setText(game_dir);
   ui_->ProgressBar->setValue(30);
 
-  if (!SetupTables()) return;
-
-  ui_->CreatePatchButton->setEnabled(true);
-
-  ui_->ProgressBar->setValue(100);
-}
-
-void SirusPatcherWindow::OnCreatePatchButtonClicked() {
-  if (!spell_table_) {
+  if (!SetupTables()) {
+    delete gif_;
     return;
   }
 
-  ui_->CreatePatchButton->setEnabled(false);
+  ui_->CreatePatchButton->setEnabled(true);
+  ui_->ProgressBar->setValue(100);
+  delete gif_;
+}
 
+void SirusPatcherWindow::OnCreatePatchButtonClicked() {
   bool success = spell_table_->WriteValuesToFile();
   if (!success) {
     QMessageBox::critical(
         this, "Ошибка записи в DBC файл",
-        "Ошибка при записи значений таблицы в файл: Spell.dbc");
+        "Ошибка при записи значений таблицы в файл: " + kDbcFileList[0]);
     return;
   }
   ui_->ProgressBar->setValue(50);
 
-  QFile::remove(ui_->GameDirectoryLine->text() +
-                MPQWorker::kExportPatchDirectory);
   success =
       MPQWorker::ArchiveDBCFiles(kDbcFileList, ui_->GameDirectoryLine->text());
   if (!success) {
@@ -83,17 +92,23 @@ void SirusPatcherWindow::OnCreatePatchButtonClicked() {
   }
 
   ui_->ProgressBar->setValue(100);
+  QMessageBox::information(this, "Патч создан",
+                           "Патч успешно создан, приятной игры!");
 }
 
 void SirusPatcherWindow::OnEnableAllCBSPellButtonClicked() {
-  SetTableCheckBoxes(ui_->SpellTableWidget, Qt::CheckState::Checked);
+  spell_table_->SetTableCheckBoxes(true);
 }
 
 void SirusPatcherWindow::OnDisableAllCBSpellButtonClicked() {
-  SetTableCheckBoxes(ui_->SpellTableWidget, Qt::CheckState::Unchecked);
+  spell_table_->SetTableCheckBoxes(false);
 }
 
-void SirusPatcherWindow::ProgressBarClear() { ui_->ProgressBar->setValue(0); }
+void SirusPatcherWindow::ProgressBarClear() {
+  if (ui_->ProgressBar->value() >= ui_->ProgressBar->maximum()) {
+    ui_->ProgressBar->setValue(0);
+  }
+}
 
 void SirusPatcherWindow::SetupWindow() {
   this->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
@@ -145,12 +160,12 @@ QLabel* SirusPatcherWindow::TabLabel(const QString& text) {
 bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
   if (dir.isEmpty()) return false;
 
-  QString run_dir = dir + "/run.exe";
-  if (!QFile::exists(run_dir)) {
+  QString run_exe = dir + "/run.exe";
+  if (!QFile::exists(run_exe)) {
     QMessageBox::critical(this, "Ошибка выбора директории",
                           "Файл запуска игры не обнаружен!\n"
                           "Проверьте следующий путь:\n" +
-                              run_dir);
+                              run_exe);
     return false;
   }
 
@@ -167,27 +182,33 @@ bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
 }
 
 bool SirusPatcherWindow::SetupTables() {
+  ui_->MpqUnpackedStatus->setMovie(gif_);
+
   bool success = MPQWorker::ExtractDBCFiles(
       kDbcFileList, ui_->GameDirectoryLine->text(), QDir::currentPath());
   if (!success) {
     QMessageBox::critical(
         this, "Ошибка импорта DBC файлов",
         "Ошибка при импорте DBC файлов:\n" + kDbcFileList.join('\n'));
+    ui_->MpqUnpackedStatus->setPixmap(QPixmap(kCrossIconPath));
     return false;
   }
-  ui_->ProgressBar->setValue(ui_->ProgressBar->value() + 30);
 
-  if (spell_table_) delete spell_table_;
-  spell_table_ = new SpellDBCTable(ui_->SpellTableWidget, "./Spell.dbc",
-                                   "://resources/dbc/Spell.dbc.json");
-  success = spell_table_->SetupTableFromFile();
+  ui_->ProgressBar->setValue(ui_->ProgressBar->value() + 30);
+  ui_->MpqUnpackedStatus->setPixmap(QPixmap(kCheckIconPath));
+  ui_->InitSpellStatus->setMovie(gif_);
+
+  success = spell_table_->SetupFromFile();
   if (!success) {
     QMessageBox::critical(this, "Ошибка инициализации таблицы",
-                          "Ошибка при инициализации таблицы: SpellTable");
+                          "Ошибка при инициализации таблицы: spell_table_");
+    ui_->InitSpellStatus->setPixmap(QPixmap(kCrossIconPath));
     return false;
   }
+
   ui_->MainTabWidget->setTabEnabled(1, true);
   ui_->ProgressBar->setValue(ui_->ProgressBar->value() + 30);
+  ui_->InitSpellStatus->setPixmap(QPixmap(kCheckIconPath));
 
   return true;
 }
@@ -195,19 +216,6 @@ bool SirusPatcherWindow::SetupTables() {
 void SirusPatcherWindow::ReloadProgramState() {
   ui_->CreatePatchButton->setEnabled(false);
   ui_->SpellTab->setEnabled(false);
-  ui_->SpellTableWidget->clear();
-  if (spell_table_) {
-    delete spell_table_;
-    spell_table_ = nullptr;
-  }
-}
-
-void SirusPatcherWindow::SetTableCheckBoxes(QTableWidget* table,
-                                            Qt::CheckState state) {
-  for (int i = 0; i < table->rowCount(); ++i) {
-    QWidget* item = table->cellWidget(i, 0);
-    QCheckBox* check_box =
-        qobject_cast<QCheckBox*>(item->layout()->itemAt(0)->widget());
-    check_box->setCheckState(state);
-  }
+  ui_->MpqUnpackedStatus->setPixmap(QPixmap(kMinusIconPath));
+  ui_->InitSpellStatus->setPixmap(QPixmap(kMinusIconPath));
 }

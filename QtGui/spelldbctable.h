@@ -1,25 +1,42 @@
 #ifndef _SPELLDBCTABLE_H_
 #define _SPELLDBCTABLE_H_
 
+#include <QDir>
 #include <QJsonArray>
+#include <QObject>
 #include <QString>
 #include <QTableWidget>
 #include <QWidget>
 
 #include "DBC/dbchandler.h"
-#include "QtGui/abstractdbctable.h"
 
-class SpellDBCTable final : public AbstractDBCTable {
+class SpellDBCTable final : public QObject {
+  Q_OBJECT
+
  public:
-  SpellDBCTable(QTableWidget* table, const QString& dbc_path,
-                const QString& json_path);
-  bool SetupTableFromFile() override;
-  bool WriteValuesToFile() override;
+  SpellDBCTable(QTableWidget* table);
+  ~SpellDBCTable();
+  bool SetupFromFile();
+  bool WriteValuesToFile();
+  void SetTableCheckBoxes(bool state);
+
+ signals:
+  void UpdateProgress(int progress);
 
  private:
-  void InitHeaders() override;
-  void InitFields(QJsonArray& ids) override;
-  QWidget* CreateCheckBox(bool default_state) override;
+  const QString kDbcPath = "./Spell.dbc";
+  const QString kDbcSavePath = "./Spell.dbc.save";
+  const QString kJsonTablePath = "://resources/dbc/Spell.dbc.json";
+
+  const int kSpellVisualColumn = 132;
+  const int kSpellNameColumn = 145;
+  const int kSpellDescriptionColumn = 179;
+
+  void InitHeaders();
+  void InitFields(QJsonArray& ids, DBCHandler& handler);
+  QWidget* CreateCheckBox(bool default_state);
+
+  QTableWidget* table_;
 };
 
 #endif  // _SPELLDBCTABLE_H_
