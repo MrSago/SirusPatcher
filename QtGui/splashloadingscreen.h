@@ -11,7 +11,7 @@
 
 class SplashLoadingScreen : public QSplashScreen {
  public:
-  SplashLoadingScreen(const QPixmap& pixmap = QPixmap(),
+  explicit SplashLoadingScreen(const QPixmap& pixmap = QPixmap(),
                       Qt::WindowFlags flags = Qt::WindowFlags());
   void Start(QApplication* app);
 

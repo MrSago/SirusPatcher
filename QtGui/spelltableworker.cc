@@ -1,0 +1,111 @@
+#include "QtGui/spelltableworker.h"
+
+#include <QCheckBox>
+#include <QFile>
+#include <QIODevice>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QLayout>
+#include <QObject>
+#include <QString>
+#include <QTableWidget>
+#include <QWidget>
+
+#include "DBC/dbchandler.h"
+#include "DBC/record.h"
+
+const QString SpellTableWorker::kDbcPath = "./Spell.dbc";
+const QString SpellTableWorker::kDbcSavePath = "./Spell.dbc.save";
+const QString SpellTableWorker::kJsonTablePath =
+    "://resources/dbc/Spell.dbc.json";
+
+const int SpellTableWorker::kSpellVisualColumn = 132;
+const int SpellTableWorker::kSpellNameColumn = 145;
+const int SpellTableWorker::kSpellDescriptionColumn = 179;
+
+SpellTableWorker::SpellTableWorker(QTableWidget* table, QObject* parent)
+    : QObject(parent), table_(table) {}
+
+bool SpellTableWorker::InitDBCTable() {
+  DBCHandler handler;
+  if (handler.Load(kDbcSavePath.toStdString()) != DBCError::kSuccess) {
+    emit ErrorOccurred("Ошибка загрузки DBC файла:\n" + kDbcSavePath);
+    return false;
+  }
+  ProgressChanged(5);
+
+  QFile json_file(kJsonTablePath);
+  if (!json_file.open(QIODevice::ReadOnly)) {
+    emit ErrorOccurred("Ошибка открытия JSON файла:\n" + kJsonTablePath);
+    return false;
+  }
+
+  QJsonArray ids_array = QJsonDocument::fromJson(json_file.readAll()).array();
+  ProgressChanged(5);
+
+  constexpr double kMaxProgress = 30.0l;
+  const double kProgressStep = kMaxProgress / ids_array.count();
+  double progress_double = 0.0l;
+  int progress = 0;
+
+  emit ResetRowCount(table_, ids_array.count());
+  for (int i = 0; i < ids_array.count(); ++i) {
+    int id = ids_array[i].toInt();
+    Record record = handler.GetRecordById(id);
+
+    emit AddItem(table_, i, 1, id);
+    emit AddItem(table_, i, 2,
+                 QString::fromUtf8(record.GetString(kSpellNameColumn)));
+    emit AddItem(table_, i, 3,
+                 QString::fromUtf8(record.GetString(kSpellDescriptionColumn)));
+
+    progress_double += kProgressStep;
+    int current_progress = int(progress_double);
+    if (current_progress != progress) {
+      progress = current_progress;
+      emit ProgressChanged(1);
+    }
+  }
+
+  return true;
+}
+
+bool SpellTableWorker::WriteDBCTable() {
+  DBCHandler handler;
+  if (handler.Load(kDbcSavePath.toStdString()) != DBCError::kSuccess) {
+    emit ErrorOccurred("Ошибка загрузки DBC файла:\n" + kDbcSavePath);
+    return false;
+  }
+
+  constexpr double kMaxProgress = 50.0l;
+  const double kProgressStep = kMaxProgress / table_->rowCount();
+  double progress_double = 0.0l;
+  int progress = 0;
+
+  for (int i = 0; i < table_->rowCount(); ++i) {
+    QWidget* item = (table_->cellWidget(i, 0));
+    QCheckBox* check_box =
+        qobject_cast<QCheckBox*>(item->layout()->itemAt(0)->widget());
+
+    bool state = check_box->isChecked();
+    int id = table_->item(i, 1)->data(Qt::DisplayRole).toInt();
+
+    if (!state) {
+      handler.GetRecordById(id).SetUInt32(kSpellVisualColumn, 0);
+    }
+
+    progress_double += kProgressStep;
+    int current_progress = int(progress_double);
+    if (current_progress != progress) {
+      progress = current_progress;
+      emit ProgressChanged(1);
+    }
+  }
+
+  if (handler.Save(kDbcPath.toStdString()) != DBCError::kSuccess) {
+    emit ErrorOccurred("Ошибка сохранения DBC файла:\n" + kDbcPath);
+    return false;
+  }
+
+  return true;
+}
