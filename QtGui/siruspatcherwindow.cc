@@ -1,5 +1,6 @@
 #include "QtGui/siruspatcherwindow.h"
 
+#include <QAbstractItemView>
 #include <QCheckBox>
 #include <QDir>
 #include <QFileDialog>
@@ -7,6 +8,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QModelIndex>
 #include <QMouseEvent>
 #include <QMovie>
 #include <QPixmap>
@@ -19,17 +21,23 @@
 
 #include "./ui_siruspatcherwindow.h"
 #include "QtGui/createpatchworker.h"
+#include "QtGui/enchanttableworker.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/proginfogetter.h"
 #include "QtGui/spelltableworker.h"
 
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
-    : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow), gif_(nullptr) {
+    : QMainWindow(parent),
+      ui_(new Ui::SirusPatcherWindow),
+      is_error_occurred_(false),
+      count_prepared_tables_(0),
+      gif_(nullptr) {
   ui_->setupUi(this);
   InitThreadsAndWorkers();
   SetupWindow();
   SetupTabLabels();
   SetupSpellTable();
+  SetupEnchantTable();
   SetupConnections();
 }
 
@@ -43,6 +51,11 @@ SirusPatcherWindow::~SirusPatcherWindow() {
   spell_table_thread_->wait();
   delete spell_table_thread_;
   delete spell_table_worker_;
+
+  enchant_table_thread_->quit();
+  enchant_table_thread_->wait();
+  delete enchant_table_thread_;
+  delete enchant_table_worker_;
 
   create_patch_thread_->quit();
   create_patch_thread_->wait();
@@ -89,20 +102,72 @@ void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
 
 void SirusPatcherWindow::OnCreatePatchButtonClicked() {
   ProgressBarClear();
-  ui_->CreatePatchButton->setEnabled(false);
-  ui_->SettingsTab->setEnabled(false);
-  ui_->SpellTab->setEnabled(false);
+  DisableTabs();
+  DisableButtons();
 
   create_patch_thread_->start();
   create_patch_thread_->quit();
 }
 
-void SirusPatcherWindow::OnEnableAllCBSpellButtonClicked() {
-  SetTableCheckBoxes(ui_->SpellTableWidget, true);
+void SirusPatcherWindow::OnEnableAllCBButtonClicked() {
+  switch (ui_->MainTabWidget->currentIndex()) {
+    case kSpellTab:
+      SetTableCheckBoxes(ui_->SpellTableWidget, true);
+      break;
+    case kEnchantTab:
+      SetTableCheckBoxes(ui_->EnchantTableWidget, true);
+      break;
+    default:
+      break;
+  }
 }
 
-void SirusPatcherWindow::OnDisableAllCBSpellButtonClicked() {
-  SetTableCheckBoxes(ui_->SpellTableWidget, false);
+void SirusPatcherWindow::OnDisableAllCBButtonClicked() {
+  switch (ui_->MainTabWidget->currentIndex()) {
+    case kSpellTab:
+      SetTableCheckBoxes(ui_->SpellTableWidget, false);
+      break;
+    case kEnchantTab:
+      SetTableCheckBoxes(ui_->EnchantTableWidget, false);
+      break;
+    default:
+      break;
+  }
+}
+
+void SirusPatcherWindow::OnTabBarClicked(int index) {
+  ProgressBarClear();
+
+  switch (index) {
+    case kSpellTab:
+    case kEnchantTab:
+      ui_->EnableAllCBButton->setEnabled(true);
+      ui_->DisableAllCBButton->setEnabled(true);
+      break;
+    default:
+      ui_->EnableAllCBButton->setEnabled(false);
+      ui_->DisableAllCBButton->setEnabled(false);
+      break;
+  }
+}
+
+void SirusPatcherWindow::OnItemClicked(const QModelIndex& index) {
+  QTableWidget* table;
+  switch (ui_->MainTabWidget->currentIndex()) {
+    case kSpellTab:
+      table = ui_->SpellTableWidget;
+      break;
+    case kEnchantTab:
+      table = ui_->EnchantTableWidget;
+      break;
+    default:
+      return;
+  }
+
+  int ix = index.row();
+  QCheckBox* check_box = qobject_cast<QCheckBox*>(
+      table->cellWidget(ix, 0)->layout()->itemAt(0)->widget());
+  check_box->setChecked(!check_box->isChecked());
 }
 
 void SirusPatcherWindow::ResetRowCountTable(QTableWidget* table, int count) {
@@ -121,9 +186,14 @@ void SirusPatcherWindow::AddItemTable(QTableWidget* table, int row, int column,
 void SirusPatcherWindow::OnExtractingFinished() {
   ui_->MpqUnpackedStatus->setPixmap(QPixmap(kCheckIconPath));
   ui_->InitSpellStatus->setMovie(gif_);
+  ui_->InitEnchantStatus->setMovie(gif_);
   AddProgressBarValue(100);
+
   spell_table_thread_->start();
+  enchant_table_thread_->start();
+
   spell_table_thread_->quit();
+  enchant_table_thread_->quit();
 }
 
 void SirusPatcherWindow::OnSpellTableCreated() {
@@ -132,27 +202,42 @@ void SirusPatcherWindow::OnSpellTableCreated() {
   }
   ui_->SpellTableWidget->setSortingEnabled(true);
   ui_->SpellTableWidget->sortItems(2, Qt::AscendingOrder);
+  ui_->SpellTableWidget->update();
 
-  delete gif_, gif_ = nullptr;
   ui_->InitSpellStatus->setPixmap(QPixmap(kCheckIconPath));
   ui_->MainTabWidget->setTabEnabled(kSpellTab, true);
-  ui_->CreatePatchButton->setEnabled(true);
 
-  ui_->ChooseDirectoryButton->setEnabled(true);
-  ui_->SpellTableWidget->update();
+  TryEnableButtons();
+}
+
+void SirusPatcherWindow::OnEnchantTableCreated() {
+  for (int i = 0; i < ui_->EnchantTableWidget->rowCount(); ++i) {
+    ui_->EnchantTableWidget->setCellWidget(i, 0, CreateCheckBox(true));
+  }
+  ui_->EnchantTableWidget->setSortingEnabled(true);
+  ui_->EnchantTableWidget->sortItems(2, Qt::AscendingOrder);
+  ui_->EnchantTableWidget->update();
+
+  ui_->InitEnchantStatus->setPixmap(QPixmap(kCheckIconPath));
+  ui_->MainTabWidget->setTabEnabled(kEnchantTab, true);
+
+  TryEnableButtons();
 }
 
 void SirusPatcherWindow::OnErrorOccurred(const QString& error) {
-  QMessageBox::critical(this, "Ошибка", error);
+  is_error_occurred_ = true;
+  QMessageBox::critical(this, "Ошибка!", error);
 }
 
 void SirusPatcherWindow::OnPatchCreated() {
-  ui_->CreatePatchButton->setEnabled(true);
-  ui_->SettingsTab->setEnabled(true);
-  ui_->SpellTab->setEnabled(true);
+  EnableButtons();
+  EnableTabs();
   AddProgressBarValue(100);
-  QMessageBox::information(this, "Патч создан",
-                           "Патч успешно создан, приятной игры!");
+  if (!is_error_occurred_) {
+    QMessageBox::information(this, "Патч создан",
+                             "Патч успешно создан, приятной игры!");
+  }
+  is_error_occurred_ = false;
 }
 
 void SirusPatcherWindow::AddProgressBarValue(int value) {
@@ -169,15 +254,18 @@ void SirusPatcherWindow::ProgressBarClear() {
 void SirusPatcherWindow::InitThreadsAndWorkers() {
   mpq_archiver_ = new MPQArchiver();
   spell_table_worker_ = new SpellTableWorker(ui_->SpellTableWidget);
-  create_patch_worker_ =
-      new CreatePatchWorker(mpq_archiver_, spell_table_worker_);
+  enchant_table_worker_ = new EnchantTableWorker(ui_->EnchantTableWidget);
+  create_patch_worker_ = new CreatePatchWorker(
+      mpq_archiver_, spell_table_worker_, enchant_table_worker_);
 
   mpq_archiver_thread_ = new QThread();
   spell_table_thread_ = new QThread();
+  enchant_table_thread_ = new QThread();
   create_patch_thread_ = new QThread();
 
   mpq_archiver_->moveToThread(mpq_archiver_thread_);
   spell_table_worker_->moveToThread(spell_table_thread_);
+  enchant_table_worker_->moveToThread(enchant_table_thread_);
   create_patch_worker_->moveToThread(create_patch_thread_);
 }
 
@@ -192,10 +280,13 @@ void SirusPatcherWindow::SetupTabLabels() {
                                              TabLabel("Настройки"));
   ui_->MainTabWidget->tabBar()->setTabButton(kSpellTab, QTabBar::LeftSide,
                                              TabLabel("Заклинания"));
+  ui_->MainTabWidget->tabBar()->setTabButton(kEnchantTab, QTabBar::LeftSide,
+                                             TabLabel("Иллюзии"));
   ui_->MainTabWidget->tabBar()->setTabButton(kAboutTab, QTabBar::LeftSide,
                                              TabLabel("О программе"));
 
   ui_->MainTabWidget->setTabEnabled(kSpellTab, false);
+  ui_->MainTabWidget->setTabEnabled(kEnchantTab, false);
 }
 
 void SirusPatcherWindow::SetupSpellTable() {
@@ -219,10 +310,30 @@ void SirusPatcherWindow::SetupSpellTable() {
   ui_->SpellTableWidget->setUpdatesEnabled(true);
 }
 
+void SirusPatcherWindow::SetupEnchantTable() {
+  QStringList headers;
+  headers << "*"
+          << "ID"
+          << "Название";
+  ui_->EnchantTableWidget->setColumnCount(headers.size());
+  ui_->EnchantTableWidget->setHorizontalHeaderLabels(headers);
+
+  ui_->EnchantTableWidget->horizontalHeader()->setSectionResizeMode(
+      QHeaderView::Fixed);
+  ui_->EnchantTableWidget->verticalHeader()->setSectionResizeMode(
+      QHeaderView::ResizeToContents);
+
+  ui_->EnchantTableWidget->setColumnWidth(0, 35);
+  ui_->EnchantTableWidget->setColumnWidth(1, 60);
+  ui_->EnchantTableWidget->setColumnWidth(2, 710);
+  ui_->EnchantTableWidget->setUpdatesEnabled(true);
+}
+
 void SirusPatcherWindow::SetupConnections() {
   ConnectButtons();
   ConnectMPQArchiver();
   ConnectSpellTable();
+  ConnectEnchantTable();
   ConnectCreatePatch();
 }
 
@@ -236,13 +347,18 @@ void SirusPatcherWindow::ConnectButtons() {
   connect(ui_->CreatePatchButton, &QPushButton::clicked, this,
           &SirusPatcherWindow::OnCreatePatchButtonClicked);
 
-  connect(ui_->EnableAllCBSPellButton, &QPushButton::clicked, this,
-          &SirusPatcherWindow::OnEnableAllCBSpellButtonClicked);
-  connect(ui_->DisableAllCBSpellButton, &QPushButton::clicked, this,
-          &SirusPatcherWindow::OnDisableAllCBSpellButtonClicked);
+  connect(ui_->EnableAllCBButton, &QPushButton::clicked, this,
+          &SirusPatcherWindow::OnEnableAllCBButtonClicked);
+  connect(ui_->DisableAllCBButton, &QPushButton::clicked, this,
+          &SirusPatcherWindow::OnDisableAllCBButtonClicked);
 
   connect(ui_->MainTabWidget, &QTabWidget::tabBarClicked, this,
-          &SirusPatcherWindow::ProgressBarClear);
+          &SirusPatcherWindow::OnTabBarClicked);
+
+  connect(ui_->SpellTableWidget, &QAbstractItemView::clicked, this,
+          &SirusPatcherWindow::OnItemClicked);
+  connect(ui_->EnchantTableWidget, &QAbstractItemView::clicked, this,
+          &SirusPatcherWindow::OnItemClicked);
 }
 
 void SirusPatcherWindow::ConnectMPQArchiver() {
@@ -267,6 +383,22 @@ void SirusPatcherWindow::ConnectSpellTable() {
   connect(spell_table_worker_, &SpellTableWorker::ProgressChanged, this,
           &SirusPatcherWindow::AddProgressBarValue);
   connect(spell_table_worker_, &SpellTableWorker::ErrorOccurred, this,
+          &SirusPatcherWindow::OnErrorOccurred);
+}
+
+void SirusPatcherWindow::ConnectEnchantTable() {
+  connect(enchant_table_thread_, &QThread::started, enchant_table_worker_,
+          &EnchantTableWorker::InitDBCTable);
+  connect(enchant_table_thread_, &QThread::finished, this,
+          &SirusPatcherWindow::OnEnchantTableCreated);
+
+  connect(enchant_table_worker_, &EnchantTableWorker::ResetRowCount, this,
+          &SirusPatcherWindow::ResetRowCountTable);
+  connect(enchant_table_worker_, &EnchantTableWorker::AddItem, this,
+          &SirusPatcherWindow::AddItemTable);
+  connect(enchant_table_worker_, &EnchantTableWorker::ProgressChanged, this,
+          &SirusPatcherWindow::AddProgressBarValue);
+  connect(enchant_table_worker_, &EnchantTableWorker::ErrorOccurred, this,
           &SirusPatcherWindow::OnErrorOccurred);
 }
 
@@ -339,4 +471,39 @@ QWidget* SirusPatcherWindow::CreateCheckBox(bool state) {
   layout->setContentsMargins(0, 0, 0, 0);
   check_box->setChecked(state);
   return widget;
+}
+
+void SirusPatcherWindow::TryEnableButtons() {
+  if (++count_prepared_tables_ >= kDbcFileList.size()) {
+    ui_->CreatePatchButton->setEnabled(true);
+    ui_->ChooseDirectoryButton->setEnabled(true);
+    delete gif_, gif_ = nullptr;
+    count_prepared_tables_ = 0;
+  }
+}
+
+void SirusPatcherWindow::EnableButtons() {
+  ui_->ChooseDirectoryButton->setEnabled(true);
+  ui_->EnableAllCBButton->setEnabled(true);
+  ui_->DisableAllCBButton->setEnabled(true);
+  ui_->CreatePatchButton->setEnabled(true);
+}
+
+void SirusPatcherWindow::DisableButtons() {
+  ui_->ChooseDirectoryButton->setEnabled(false);
+  ui_->EnableAllCBButton->setEnabled(false);
+  ui_->DisableAllCBButton->setEnabled(false);
+  ui_->CreatePatchButton->setEnabled(false);
+}
+
+void SirusPatcherWindow::EnableTabs() {
+  ui_->SettingsTab->setEnabled(true);
+  ui_->SpellTab->setEnabled(true);
+  ui_->EnchantTab->setEnabled(true);
+}
+
+void SirusPatcherWindow::DisableTabs() {
+  ui_->SettingsTab->setEnabled(false);
+  ui_->SpellTab->setEnabled(false);
+  ui_->EnchantTab->setEnabled(false);
 }

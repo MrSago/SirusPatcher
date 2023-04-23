@@ -1,14 +1,12 @@
-#ifndef _SPELLTABLEWORKER_H_
-#define _SPELLTABLEWORKER_H_
+#ifndef _ENCHANTTABLEWORKER_H_
+#define _ENCHANTTABLEWORKER_H_
 
 #include <QObject>
 #include <QString>
 #include <QTableWidget>
 #include <QVariant>
 
-#include "DBC/dbchandler.h"
-
-class SpellTableWorker : public QObject {
+class EnchantTableWorker : public QObject {
   Q_OBJECT
 
  private:
@@ -16,12 +14,11 @@ class SpellTableWorker : public QObject {
   static const QString kDbcSavePath;
   static const QString kJsonTablePath;
 
-  static const int kSpellVisual;
-  static const int kSpellName;
-  static const int kSpellDescription;
+  static const int kItemVisual;
+  static const int kRefName;
 
  public:
-  explicit SpellTableWorker(QTableWidget* table, QObject* parent = nullptr);
+  explicit EnchantTableWorker(QTableWidget* table, QObject* parent = nullptr);
 
  public slots:
   bool InitDBCTable();
@@ -37,4 +34,4 @@ class SpellTableWorker : public QObject {
   QTableWidget* table_;
 };
 
-#endif  // _SPELLTABLEWORKER_H_
+#endif  // _ENCHANTTABLEWORKER_H_

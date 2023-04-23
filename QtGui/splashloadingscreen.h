@@ -16,7 +16,7 @@ class SplashLoadingScreen : public QSplashScreen {
   void Start(QApplication* app);
 
  private:
-  const int kLoadTimeMS = 5 * 1000;
+  const int kLoadTimeMS = 3 * 1000;
 
   const int kProgressPixelsX = 394;
   const int kProgressPixelsY = 369;

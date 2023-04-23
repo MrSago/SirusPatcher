@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 
+#include "QtGui/enchanttableworker.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/spelltableworker.h"
 
@@ -12,7 +13,8 @@ class CreatePatchWorker : public QObject {
 
  public:
   explicit CreatePatchWorker(MPQArchiver* mpq_archiver,
-                             SpellTableWorker* spell_table_worker_,
+                             SpellTableWorker* spell_table_worker,
+                             EnchantTableWorker* enchant_table_worker,
                              QObject* parent = nullptr);
 
  public slots:
@@ -25,6 +27,7 @@ class CreatePatchWorker : public QObject {
  private:
   MPQArchiver* mpq_archiver_;
   SpellTableWorker* spell_table_worker_;
+  EnchantTableWorker* enchant_table_worker_;
 };
 
 #endif  // _CREATEPATCHWORKER_H_

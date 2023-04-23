@@ -1,4 +1,4 @@
-#include "QtGui/spelltableworker.h"
+#include "QtGui/enchanttableworker.h"
 
 #include <QCheckBox>
 #include <QFile>
@@ -14,19 +14,19 @@
 #include "DBC/dbchandler.h"
 #include "DBC/record.h"
 
-const QString SpellTableWorker::kDbcPath = "./Spell.dbc";
-const QString SpellTableWorker::kDbcSavePath = "./Spell.dbc.save";
-const QString SpellTableWorker::kJsonTablePath =
-    "://resources/dbc/Spell.dbc.json";
+const QString EnchantTableWorker::kDbcPath = "./SpellItemEnchantment.dbc";
+const QString EnchantTableWorker::kDbcSavePath =
+    "./SpellItemEnchantment.dbc.save";
+const QString EnchantTableWorker::kJsonTablePath =
+    "://resources/dbc/SpellItemEnchantment.dbc.json";
 
-const int SpellTableWorker::kSpellVisual = 132;
-const int SpellTableWorker::kSpellName = 145;
-const int SpellTableWorker::kSpellDescription = 179;
+const int EnchantTableWorker::kItemVisual = 32;
+const int EnchantTableWorker::kRefName = 23;
 
-SpellTableWorker::SpellTableWorker(QTableWidget* table, QObject* parent)
+EnchantTableWorker::EnchantTableWorker(QTableWidget* table, QObject* parent)
     : QObject(parent), table_(table) {}
 
-bool SpellTableWorker::InitDBCTable() {
+bool EnchantTableWorker::InitDBCTable() {
   DBCHandler handler;
   if (handler.Load(kDbcSavePath.toStdString()) != DBCError::kSuccess) {
     emit ErrorOccurred("Ошибка загрузки DBC файла:\n" + kDbcSavePath);
@@ -54,23 +54,22 @@ bool SpellTableWorker::InitDBCTable() {
     Record record = handler.GetRecordById(id);
 
     emit AddItem(table_, i, 1, id);
-    emit AddItem(table_, i, 2,
-                 QString::fromUtf8(record.GetString(kSpellName)));
-    emit AddItem(table_, i, 3,
-                 QString::fromUtf8(record.GetString(kSpellDescription)));
+    QString ref_name =
+        QString::fromUtf8(record.GetString(kRefName)).sliced(10).chopped(2);
+    emit AddItem(table_, i, 2, ref_name);
 
     progress_double += kProgressStep;
-    int current_progress = int(progress_double);
-    if (current_progress != progress) {
-      progress = current_progress;
-      emit ProgressChanged(1);
+    if (progress_double >= 1.0l) {
+      progress += static_cast<int>(progress_double);
+      progress_double -= static_cast<int>(progress_double);
+      emit ProgressChanged(progress);
     }
   }
 
   return true;
 }
 
-bool SpellTableWorker::WriteDBCTable() {
+bool EnchantTableWorker::WriteDBCTable() {
   DBCHandler handler;
   if (handler.Load(kDbcSavePath.toStdString()) != DBCError::kSuccess) {
     emit ErrorOccurred("Ошибка загрузки DBC файла:\n" + kDbcSavePath);
@@ -91,7 +90,7 @@ bool SpellTableWorker::WriteDBCTable() {
     int id = table_->item(i, 1)->data(Qt::DisplayRole).toInt();
 
     if (!state) {
-      handler.GetRecordById(id).SetUInt32(kSpellVisual, 0);
+      handler.GetRecordById(id).SetUInt32(kItemVisual, 0);
     }
 
     progress_double += kProgressStep;
