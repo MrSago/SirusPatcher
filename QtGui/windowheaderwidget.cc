@@ -1,8 +1,8 @@
-#include "windowheaderwidget.h"
+#include "QtGui/windowheaderwidget.h"
 
 #include <QMouseEvent>
+#include <QPoint>
 #include <QWidget>
-#include <QWindow>
 
 WindowHeaderWidget::WindowHeaderWidget(QWidget* parent) : QWidget{parent} {}
 

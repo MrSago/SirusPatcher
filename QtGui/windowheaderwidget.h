@@ -1,8 +1,9 @@
 #ifndef _WINDOWHEADERWIDGET_H_
 #define _WINDOWHEADERWIDGET_H_
 
+#include <QMouseEvent>
+#include <QPoint>
 #include <QWidget>
-#include <QWindow>
 
 class WindowHeaderWidget : public QWidget {
   Q_OBJECT

@@ -1,21 +1,22 @@
-#include "splashloadingscreen.h"
+#include "QtGui/splashloadingscreen.h"
 
 #include <QApplication>
 #include <QElapsedTimer>
 #include <QEvent>
 #include <QFont>
+#include <QObject>
 #include <QPainter>
 #include <QPixmap>
 #include <QRectF>
 #include <QTextOption>
+#include <QWidget>
 
 #include "QtGui/proginfogetter.h"
 
 SplashLoadingScreen::SplashLoadingScreen(const QPixmap& pixmap,
                                          Qt::WindowFlags flags)
-    : pixmap_(pixmap) {
+    : QSplashScreen(pixmap, flags), pixmap_(pixmap) {
   PreparePixmap();
-  this->setPixmap(pixmap_);
   this->installEventFilter(this);
 }
 

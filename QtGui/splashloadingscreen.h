@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QEvent>
+#include <QPainter>
 #include <QPixmap>
 #include <QPoint>
 #include <QSplashScreen>
@@ -10,16 +11,16 @@
 
 class SplashLoadingScreen : public QSplashScreen {
  public:
-  SplashLoadingScreen(const QPixmap& pixmap = QPixmap(),
+  explicit SplashLoadingScreen(const QPixmap& pixmap = QPixmap(),
                       Qt::WindowFlags flags = Qt::WindowFlags());
   void Start(QApplication* app);
 
  private:
-  const int kLoadTimeMS = 5 * 1000;
+  const int kLoadTimeMS = 3 * 1000;
 
   const int kProgressPixelsX = 394;
   const int kProgressPixelsY = 369;
-  const int kProgressPixelsWidth = 233;
+  const int kProgressPixelsWidth = 237;
   const int kProgressPixelsHeight = 35;
 
   const QString kMainFont = "Segoe UI";
@@ -27,7 +28,7 @@ class SplashLoadingScreen : public QSplashScreen {
   const QPoint kProgramNamePoint = {410, 50};
   const int kProgramNameSize = 20;
 
-  const QString kIconFile = "://icons/window.ico";
+  const QString kIconFile = "://resources/icons/window.ico";
   const QPoint kIconPoint = {478, 80};
 
   const QString kDisclaimerText =

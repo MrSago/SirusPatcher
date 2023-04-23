@@ -48,9 +48,10 @@ class DBCHandler {
  private:
   const uint32_t kDBCMagic = 0x43424457;  // 'WDBC'
 
-  Record BinSearchRecord(uint32_t record_id);
+  void InitRecordMap();
 
   DBCFile* dbc_;
+  std::map<uint32_t, Record> record_map_;
 };
 
 #endif  // _DBC_HANDLER_H_
