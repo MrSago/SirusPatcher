@@ -95,6 +95,7 @@ bool MPQArchiver::ArchiveDBCFiles(const QStringList& dbc_files,
     success = SFileAddFileEx(mpq, dbc_exported_path_pointer, dbc_file_pointer,
                              MPQ_FILE_COMPRESS + MPQ_FILE_REPLACEEXISTING,
                              MPQ_COMPRESSION_ZLIB, MPQ_COMPRESSION_NEXT_SAME);
+
     success |= QFile::remove(file);
 
     if (!success) {
