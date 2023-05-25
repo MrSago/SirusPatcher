@@ -477,7 +477,7 @@ QWidget* SirusPatcherWindow::CreateCheckBox(bool state) {
 }
 
 void SirusPatcherWindow::TryEnableButtons() {
-  if (++count_prepared_tables_ >= kDbcFileList.size()) {
+  if (++count_prepared_tables_ >= 2) {
     ui_->CreatePatchButton->setEnabled(true);
     ui_->ChooseDirectoryButton->setEnabled(true);
     delete gif_, gif_ = nullptr;

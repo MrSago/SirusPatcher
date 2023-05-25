@@ -7,6 +7,7 @@
 #include "QtGui/enchanttableworker.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/spelltableworker.h"
+#include "QtGui/yserachanger.h"
 
 class CreatePatchWorker : public QObject {
   Q_OBJECT
@@ -28,6 +29,7 @@ class CreatePatchWorker : public QObject {
   MPQArchiver* mpq_archiver_;
   SpellTableWorker* spell_table_worker_;
   EnchantTableWorker* enchant_table_worker_;
+  YseraChanger ysera_changer_;
 };
 
 #endif  // _CREATEPATCHWORKER_H_

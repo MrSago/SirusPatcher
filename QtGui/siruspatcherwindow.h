@@ -60,7 +60,8 @@ class SirusPatcherWindow : public QMainWindow {
   void ProgressBarClear();
 
  private:
-  const QStringList kDbcFileList = {"Spell.dbc", "SpellItemEnchantment.dbc"};
+  const QStringList kDbcFileList = {"Spell.dbc", "SpellItemEnchantment.dbc",
+                                    "SpellVisualEffectName.dbc"};
 
   const QString kUpdatedGifPath = "://resources/icons/refresh.gif";
   const QString kCheckIconPath = "://resources/icons/check.png";

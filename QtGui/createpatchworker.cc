@@ -28,6 +28,8 @@ void CreatePatchWorker::StartCreatingPatch() {
     return;
   }
 
+  ysera_changer_.Change();
+
   success = mpq_archiver_->ArchiveDBCFiles();
   if (!success) {
     emit ErrorOccurred("Ошибка при архивировании DBC файлов");
