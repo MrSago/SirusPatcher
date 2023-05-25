@@ -377,7 +377,7 @@ QPushButton:hover
         </font>
        </property>
        <property name="text">
-        <string>MPQ файл разархивирован</string>
+        <string>Файл patch-ruRU-4.mpq разархивирован</string>
        </property>
       </widget>
       <widget class="QLabel" name="InitSpellStatus">
@@ -522,6 +522,57 @@ QPushButton:hover
       </attribute>
      </widget>
     </widget>
+    <widget class="QWidget" name="FeaturesTab">
+     <attribute name="title">
+      <string/>
+     </attribute>
+     <widget class="QWidget" name="FeaturesWidget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>831</width>
+        <height>511</height>
+       </rect>
+      </property>
+      <widget class="QCheckBox" name="YseraCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>811</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Заменить Дар Изеры на менее детализированную версию</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="SpiritLadyCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>811</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Заменить модельки духов Леди Смертный Шёпот на огненных элементалей</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
     <widget class="QWidget" name="AboutTab">
      <attribute name="title">
       <string/>
@@ -545,6 +596,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Возможности программы:&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;    — выбор отключаемых эффектов заклинаний;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;    — выбор отключаемых эффектов иллюзий зачарования;&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;    — дополнительные возможности патчера;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Патч создается с названием &lt;/span&gt;&lt;span style=&quot; font-size:16pt; font-weight:700; font-style:italic;&quot;&gt;patch-ruRU-].mpq&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:16pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;Автор программы: &lt;/span&gt;&lt;a href=&quot;https://github.com/MrSago&quot;&gt;&lt;span style=&quot; font-size:16pt; font-style:italic; text-decoration: underline; color:#007af4;&quot;&gt;MrS4g0&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:16pt; font-style:italic;&quot;&gt;(aka Кекисный-x4)&lt;/span&gt;&lt;/p&gt;

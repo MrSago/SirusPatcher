@@ -17,7 +17,13 @@
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/spelltableworker.h"
 
-enum TabIndex { kSettingsTab = 0, kSpellTab, kEnchantTab, kAboutTab };
+enum TabIndex {
+  kSettingsTab = 0,
+  kSpellTab,
+  kEnchantTab,
+  kFeaturesTab,
+  kAboutTab
+};
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
