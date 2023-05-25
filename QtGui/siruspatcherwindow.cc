@@ -282,11 +282,14 @@ void SirusPatcherWindow::SetupTabLabels() {
                                              TabLabel("Заклинания"));
   ui_->MainTabWidget->tabBar()->setTabButton(kEnchantTab, QTabBar::LeftSide,
                                              TabLabel("Иллюзии"));
+  ui_->MainTabWidget->tabBar()->setTabButton(kFeaturesTab, QTabBar::LeftSide,
+                                             TabLabel("Доп. возможности"));
   ui_->MainTabWidget->tabBar()->setTabButton(kAboutTab, QTabBar::LeftSide,
                                              TabLabel("О программе"));
 
   ui_->MainTabWidget->setTabEnabled(kSpellTab, false);
   ui_->MainTabWidget->setTabEnabled(kEnchantTab, false);
+  ui_->MainTabWidget->setTabEnabled(kFeaturesTab, false);
 }
 
 void SirusPatcherWindow::SetupSpellTable() {
@@ -474,7 +477,7 @@ QWidget* SirusPatcherWindow::CreateCheckBox(bool state) {
 }
 
 void SirusPatcherWindow::TryEnableButtons() {
-  if (++count_prepared_tables_ >= kDbcFileList.size()) {
+  if (++count_prepared_tables_ >= 2) {
     ui_->CreatePatchButton->setEnabled(true);
     ui_->ChooseDirectoryButton->setEnabled(true);
     delete gif_, gif_ = nullptr;

@@ -13,6 +13,14 @@
 
 #include "QtGui/proginfogetter.h"
 
+const QString SplashLoadingScreen::kDisclaimerText =
+    "Разработчик не несёт ответственности за использование патча, созданный "
+    "данной программой. "
+    "Вы делаете всё на свой страх и риск! ©️ MrS4g0";
+const QString SplashLoadingScreen::kLoadingLabelText = "Загрузка, ожидайте...";
+const QString SplashLoadingScreen::kMainFont = "Segoe UI";
+const QString SplashLoadingScreen::kIconFile = "://resources/icons/window.ico";
+
 SplashLoadingScreen::SplashLoadingScreen(const QPixmap& pixmap,
                                          Qt::WindowFlags flags)
     : QSplashScreen(pixmap, flags), pixmap_(pixmap) {

@@ -95,7 +95,9 @@ bool MPQArchiver::ArchiveDBCFiles(const QStringList& dbc_files,
     success = SFileAddFileEx(mpq, dbc_exported_path_pointer, dbc_file_pointer,
                              MPQ_FILE_COMPRESS + MPQ_FILE_REPLACEEXISTING,
                              MPQ_COMPRESSION_ZLIB, MPQ_COMPRESSION_NEXT_SAME);
-    success &= QFile::remove(file);
+
+    success |= QFile::remove(file);
+
     if (!success) {
       emit ErrorOccurred("Не удалось добавить DBC файл в MPQ архив:\n" + file);
       return false;
@@ -113,7 +115,7 @@ bool MPQArchiver::ArchiveDBCFiles(const QStringList& dbc_files,
 }
 
 bool MPQArchiver::ExtractDBCFiles() {
-  if (dbc_list_.isEmpty() && game_path_.isEmpty() && save_path_.isEmpty()) {
+  if (dbc_list_.isEmpty() || game_path_.isEmpty() || save_path_.isEmpty()) {
     emit ErrorOccurred("Не заданы параметры для извлечения DBC файлов");
     return false;
   }
@@ -122,7 +124,7 @@ bool MPQArchiver::ExtractDBCFiles() {
 }
 
 bool MPQArchiver::ArchiveDBCFiles() {
-  if (dbc_list_.isEmpty() && game_path_.isEmpty()) {
+  if (dbc_list_.isEmpty() || game_path_.isEmpty()) {
     emit ErrorOccurred("Не заданы параметры для архивации DBC файлов");
     return false;
   }

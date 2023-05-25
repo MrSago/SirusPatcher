@@ -65,8 +65,7 @@ void DBCHandler::Clear() {
   if (dbc_->records) delete[] dbc_->records;
   if (dbc_->string_block) delete[] dbc_->string_block;
 
-  delete dbc_;
-  dbc_ = nullptr;
+  delete dbc_, dbc_ = nullptr;
 }
 
 Record DBCHandler::operator[](uint32_t index) {
@@ -85,12 +84,6 @@ Record DBCHandler::operator[](uint32_t index) {
 Record DBCHandler::GetRecordById(uint32_t record_id) {
   if (!dbc_) {
     throw std::runtime_error("DBC file not opened");
-  }
-
-  if (record_id <= 0 ||
-      record_id > Record(dbc_, dbc_->header.record_count - 1).GetUInt32(1)) {
-    throw std::out_of_range("Record id out of range: " +
-                            std::to_string(record_id));
   }
 
   if (!record_map_.contains(record_id)) {

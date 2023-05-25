@@ -6,8 +6,8 @@
 
 #include "DBC/dbchandler.h"
 
-class DBCHandler;
 struct DBCFile;
+class DBCHandler;
 
 class Record {
  public:

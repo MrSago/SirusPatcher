@@ -10,41 +10,39 @@
 #include <QString>
 
 class SplashLoadingScreen : public QSplashScreen {
+ private:
+  static const QString kDisclaimerText;
+  static const QString kLoadingLabelText;
+  static const QString kMainFont;
+  static const QString kIconFile;
+
+  static constexpr int kLoadTimeMS = 3 * 1000;
+
+  static constexpr int kProgressPixelsX = 394;
+  static constexpr int kProgressPixelsY = 369;
+  static constexpr int kProgressPixelsWidth = 237;
+  static constexpr int kProgressPixelsHeight = 35;
+
+  static constexpr QPoint kProgramNamePoint = {410, 50};
+  static constexpr int kProgramNameSize = 20;
+
+  static constexpr QPoint kIconPoint = {478, 80};
+
+  static constexpr int kDisclaimerPixelsX = 390;
+  static constexpr int kDisclaimerPixelsY = 90;
+  static constexpr int kDisclaimerPixelsWidth = 240;
+  static constexpr int kDisclaimerPixelsHeight = 260;
+  static constexpr int kDisclaimerSize = 10;
+
+  static constexpr QPoint kLoadingLabelPoint = {390, 355};
+  static constexpr int kLoadingLabelSize = 15;
+
  public:
   explicit SplashLoadingScreen(const QPixmap& pixmap = QPixmap(),
-                      Qt::WindowFlags flags = Qt::WindowFlags());
+                               Qt::WindowFlags flags = Qt::WindowFlags());
   void Start(QApplication* app);
 
  private:
-  const int kLoadTimeMS = 3 * 1000;
-
-  const int kProgressPixelsX = 394;
-  const int kProgressPixelsY = 369;
-  const int kProgressPixelsWidth = 237;
-  const int kProgressPixelsHeight = 35;
-
-  const QString kMainFont = "Segoe UI";
-
-  const QPoint kProgramNamePoint = {410, 50};
-  const int kProgramNameSize = 20;
-
-  const QString kIconFile = "://resources/icons/window.ico";
-  const QPoint kIconPoint = {478, 80};
-
-  const QString kDisclaimerText =
-      "Разработчик не несёт ответственности за использование патча, созданный "
-      "данной программой. "
-      "Вы делаете всё на свой страх и риск! ©️ MrS4g0";
-  const int kDisclaimerPixelsX = 390;
-  const int kDisclaimerPixelsY = 90;
-  const int kDisclaimerPixelsWidth = 240;
-  const int kDisclaimerPixelsHeight = 260;
-  const int kDisclaimerSize = 10;
-
-  const QString kLoadingLabelText = "Загрузка, ожидайте...";
-  const QPoint kLoadingLabelPoint = {390, 355};
-  const int kLoadingLabelSize = 15;
-
   bool eventFilter(QObject* target, QEvent* event) override;
   void PreparePixmap();
   void SetHeader(QPainter& painter, QFont& font);

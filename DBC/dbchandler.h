@@ -33,6 +33,9 @@ struct DBCFile {
 };
 
 class DBCHandler {
+ private:
+  static constexpr uint32_t kDBCMagic = 0x43424457;  // 'WDBC'
+
  public:
   DBCHandler();
   ~DBCHandler();
@@ -46,8 +49,6 @@ class DBCHandler {
   Record AllocateNewRecord();
 
  private:
-  const uint32_t kDBCMagic = 0x43424457;  // 'WDBC'
-
   void InitRecordMap();
 
   DBCFile* dbc_;
