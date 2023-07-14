@@ -49,15 +49,21 @@ bool SpellTableWorker::InitDBCTable() {
   int progress = 0;
 
   emit ResetRowCount(table_, ids_array.count());
+
   for (int i = 0; i < ids_array.count(); ++i) {
     int id = ids_array[i].toInt();
-    Record record = handler.GetRecordById(id);
 
-    emit AddItem(table_, i, 1, id);
-    emit AddItem(table_, i, 2,
-                 QString::fromUtf8(record.GetString(kSpellName)));
-    emit AddItem(table_, i, 3,
-                 QString::fromUtf8(record.GetString(kSpellDescription)));
+    try {
+      Record record = handler.GetRecordById(id);
+      emit AddItem(table_, i, 1, id);
+      emit AddItem(table_, i, 2,
+                   QString::fromUtf8(record.GetString(kSpellName)));
+      emit AddItem(table_, i, 3,
+                   QString::fromUtf8(record.GetString(kSpellDescription)));
+    } catch (const std::exception& e) {
+      emit WarningOccurred(QString("ID %1 из файла %2 не найден\n%3")
+                               .arg(QString::number(id), kDbcPath, e.what()));
+    }
 
     progress_double += kProgressStep;
     int current_progress = int(progress_double);
