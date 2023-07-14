@@ -62,8 +62,7 @@ class SirusPatcherWindow : public QMainWindow {
 
  private:
   const QStringList kDbcFileList = {"Spell.dbc", "SpellItemEnchantment.dbc",
-                                    "SpellVisualEffectName.dbc",
-                                    "SpellVisual.dbc", "SpellVisualKit.dbc"};
+                                    "SpellVisualEffectName.dbc"};
 
   const QString kUpdatedGifPath = "://resources/icons/refresh.gif";
   const QString kCheckIconPath = "://resources/icons/check.png";
