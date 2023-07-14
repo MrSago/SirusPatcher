@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(SirusPatcher VERSION 0.1 LANGUAGES CXX)
+project(SirusPatcher VERSION 0.3 LANGUAGES CXX)
 
 if (NOT WIN32)
   message(FATAL_ERROR "This project is only supported on Windows")

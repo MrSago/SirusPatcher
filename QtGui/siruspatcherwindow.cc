@@ -229,6 +229,10 @@ void SirusPatcherWindow::OnErrorOccurred(const QString& error) {
   QMessageBox::critical(this, "Ошибка!", error);
 }
 
+void SirusPatcherWindow::OnWarningOccurred(const QString& warning) {
+  QMessageBox::warning(this, "Предупреждение!", warning);
+}
+
 void SirusPatcherWindow::OnPatchCreated() {
   EnableButtons();
   EnableTabs();
@@ -387,6 +391,8 @@ void SirusPatcherWindow::ConnectSpellTable() {
           &SirusPatcherWindow::AddProgressBarValue);
   connect(spell_table_worker_, &SpellTableWorker::ErrorOccurred, this,
           &SirusPatcherWindow::OnErrorOccurred);
+  connect(spell_table_worker_, &SpellTableWorker::WarningOccurred, this,
+          &SirusPatcherWindow::OnWarningOccurred);
 }
 
 void SirusPatcherWindow::ConnectEnchantTable() {
@@ -403,6 +409,8 @@ void SirusPatcherWindow::ConnectEnchantTable() {
           &SirusPatcherWindow::AddProgressBarValue);
   connect(enchant_table_worker_, &EnchantTableWorker::ErrorOccurred, this,
           &SirusPatcherWindow::OnErrorOccurred);
+  connect(enchant_table_worker_, &EnchantTableWorker::WarningOccurred, this,
+          &SirusPatcherWindow::OnWarningOccurred);
 }
 
 void SirusPatcherWindow::ConnectCreatePatch() {

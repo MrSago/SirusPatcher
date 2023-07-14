@@ -32,6 +32,7 @@ class SpellTableWorker : public QObject {
   void AddItem(QTableWidget* table, int row, int column, const QVariant& text);
   void ProgressChanged(int value);
   void ErrorOccurred(const QString& error);
+  void WarningOccurred(const QString& warning);
 
  private:
   QTableWidget* table_;

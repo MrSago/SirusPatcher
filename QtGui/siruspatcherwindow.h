@@ -54,6 +54,7 @@ class SirusPatcherWindow : public QMainWindow {
   void OnSpellTableCreated();
   void OnEnchantTableCreated();
   void OnErrorOccurred(const QString& error);
+  void OnWarningOccurred(const QString& warning);
 
   void OnPatchCreated();
   void AddProgressBarValue(int value);
@@ -61,7 +62,8 @@ class SirusPatcherWindow : public QMainWindow {
 
  private:
   const QStringList kDbcFileList = {"Spell.dbc", "SpellItemEnchantment.dbc",
-                                    "SpellVisualEffectName.dbc"};
+                                    "SpellVisualEffectName.dbc",
+                                    "SpellVisual.dbc", "SpellVisualKit.dbc"};
 
   const QString kUpdatedGifPath = "://resources/icons/refresh.gif";
   const QString kCheckIconPath = "://resources/icons/check.png";

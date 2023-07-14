@@ -49,14 +49,20 @@ bool EnchantTableWorker::InitDBCTable() {
   int progress = 0;
 
   emit ResetRowCount(table_, ids_array.count());
+
   for (int i = 0; i < ids_array.count(); ++i) {
     int id = ids_array[i].toInt();
-    Record record = handler.GetRecordById(id);
 
-    emit AddItem(table_, i, 1, id);
-    QString ref_name =
-        QString::fromUtf8(record.GetString(kRefName)).sliced(10).chopped(2);
-    emit AddItem(table_, i, 2, ref_name);
+    try {
+      Record record = handler.GetRecordById(id);
+      emit AddItem(table_, i, 1, id);
+      QString ref_name =
+          QString::fromUtf8(record.GetString(kRefName)).sliced(10).chopped(2);
+      emit AddItem(table_, i, 2, ref_name);
+    } catch (const std::exception& e) {
+      emit WarningOccurred(QString("ID %1 из файла %2 не найден\n%3")
+                               .arg(QString::number(id), kDbcPath, e.what()));
+    }
 
     progress_double += kProgressStep;
     if (progress_double >= 1.0l) {
