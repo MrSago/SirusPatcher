@@ -170,6 +170,10 @@ void SirusPatcherWindow::OnItemClicked(const QModelIndex& index) {
   check_box->setChecked(!check_box->isChecked());
 }
 
+void SirusPatcherWindow::SetRowCountTable(QTableWidget* table, int count) {
+  table->setRowCount(count);
+}
+
 void SirusPatcherWindow::ResetRowCountTable(QTableWidget* table, int count) {
   table->setRowCount(0);
   table->setSortingEnabled(false);
@@ -383,6 +387,8 @@ void SirusPatcherWindow::ConnectSpellTable() {
   connect(spell_table_thread_, &QThread::finished, this,
           &SirusPatcherWindow::OnSpellTableCreated);
 
+  connect(spell_table_worker_, &SpellTableWorker::SetRowCount, this,
+          &SirusPatcherWindow::SetRowCountTable);
   connect(spell_table_worker_, &SpellTableWorker::ResetRowCount, this,
           &SirusPatcherWindow::ResetRowCountTable);
   connect(spell_table_worker_, &SpellTableWorker::AddItem, this,

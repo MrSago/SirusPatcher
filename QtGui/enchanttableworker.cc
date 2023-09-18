@@ -50,8 +50,10 @@ bool EnchantTableWorker::InitDBCTable() {
 
   emit ResetRowCount(table_, ids_array.count());
 
+  int skipped_index = 0;
   for (int i = 0; i < ids_array.count(); ++i) {
     int id = ids_array[i].toInt();
+    int index = i - skipped_index;
 
     try {
       Record record = handler.GetRecordById(id);
@@ -60,17 +62,20 @@ bool EnchantTableWorker::InitDBCTable() {
           QString::fromUtf8(record.GetString(kRefName)).sliced(10).chopped(2);
       emit AddItem(table_, i, 2, ref_name);
     } catch (const std::exception& e) {
+      ++skipped_index;
       emit WarningOccurred(QString("ID %1 из файла %2 не найден\n%3")
                                .arg(QString::number(id), kDbcPath, e.what()));
     }
 
     progress_double += kProgressStep;
-    if (progress_double >= 1.0l) {
-      progress += static_cast<int>(progress_double);
-      progress_double -= static_cast<int>(progress_double);
-      emit ProgressChanged(progress);
+    int current_progress = static_cast<int>(progress_double);
+    if (current_progress != progress) {
+      progress = current_progress;
+      emit ProgressChanged(1);
     }
   }
+
+  emit SetRowCount(table_, ids_array.count() - skipped_index);
 
   return true;
 }
