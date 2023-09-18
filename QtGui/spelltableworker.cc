@@ -50,28 +50,33 @@ bool SpellTableWorker::InitDBCTable() {
 
   emit ResetRowCount(table_, ids_array.count());
 
+  int skipped_index = 0;
   for (int i = 0; i < ids_array.count(); ++i) {
     int id = ids_array[i].toInt();
+    int index = i - skipped_index;
 
     try {
       Record record = handler.GetRecordById(id);
-      emit AddItem(table_, i, 1, id);
-      emit AddItem(table_, i, 2,
+      emit AddItem(table_, index, 1, id);
+      emit AddItem(table_, index, 2,
                    QString::fromUtf8(record.GetString(kSpellName)));
-      emit AddItem(table_, i, 3,
+      emit AddItem(table_, index, 3,
                    QString::fromUtf8(record.GetString(kSpellDescription)));
     } catch (const std::exception& e) {
+      ++skipped_index;
       emit WarningOccurred(QString("ID %1 из файла %2 не найден\n%3")
                                .arg(QString::number(id), kDbcPath, e.what()));
     }
 
     progress_double += kProgressStep;
-    int current_progress = int(progress_double);
+    int current_progress = static_cast<int>(progress_double);
     if (current_progress != progress) {
       progress = current_progress;
       emit ProgressChanged(1);
     }
   }
+
+  emit SetRowCount(table_, ids_array.count() - skipped_index);
 
   return true;
 }

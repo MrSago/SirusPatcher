@@ -25,6 +25,7 @@ class EnchantTableWorker : public QObject {
   bool WriteDBCTable();
 
  signals:
+  void SetRowCount(QTableWidget* table, int count);
   void ResetRowCount(QTableWidget* table, int count);
   void AddItem(QTableWidget* table, int row, int column, const QVariant& text);
   void ProgressChanged(int value);

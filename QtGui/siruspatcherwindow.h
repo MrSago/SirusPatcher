@@ -46,6 +46,7 @@ class SirusPatcherWindow : public QMainWindow {
   void OnTabBarClicked(int index);
   void OnItemClicked(const QModelIndex& index);
 
+  void SetRowCountTable(QTableWidget* table, int count);
   void ResetRowCountTable(QTableWidget* table, int count);
   void AddItemTable(QTableWidget* table, int row, int column,
                     const QVariant& text);
