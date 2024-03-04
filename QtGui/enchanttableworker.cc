@@ -18,7 +18,7 @@ const QString EnchantTableWorker::kDbcPath = "./SpellItemEnchantment.dbc";
 const QString EnchantTableWorker::kDbcSavePath =
     "./SpellItemEnchantment.dbc.save";
 const QString EnchantTableWorker::kJsonTablePath =
-    "://resources/dbc/SpellItemEnchantment.dbc.json";
+    "./dbc/SpellItemEnchantment.dbc.json";
 
 const int EnchantTableWorker::kItemVisual = 32;
 const int EnchantTableWorker::kRefName = 23;
