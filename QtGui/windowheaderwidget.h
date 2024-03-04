@@ -2,7 +2,7 @@
 #define _WINDOWHEADERWIDGET_H_
 
 #include <QMouseEvent>
-#include <QPoint>
+#include <QPointF>
 #include <QWidget>
 
 class WindowHeaderWidget : public QWidget {
@@ -13,9 +13,12 @@ class WindowHeaderWidget : public QWidget {
  protected:
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
  private:
-  QPoint start_pos_;
+  bool dragging_;
+  QPointF drag_start_pos_;
+  QPointF window_start_pos_;
 };
 
 #endif  // _WINDOWHEADERWIDGET_H_
