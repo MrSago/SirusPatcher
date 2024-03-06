@@ -2,7 +2,7 @@
 #define _JSONTABLEHANDLER_H_
 
 #include <QJsonDocument>
-#include <QObject>
+#include <QString>
 #include <QTableWidget>
 
 class JsonTableHandler {
@@ -12,8 +12,8 @@ class JsonTableHandler {
 
  public:
   JsonTableHandler(QTableWidget* table);
-  QJsonDocument GetJsonTable();
-  void SetJsonTable(const QJsonDocument& json);
+  void SaveJsonTable(const QString& path, const QString& fname);
+  void SetJsonTable(const QString& path);
 
  private:
   bool GetTableCheckBoxState(int row, int column);

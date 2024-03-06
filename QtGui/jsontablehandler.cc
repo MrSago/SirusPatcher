@@ -1,33 +1,67 @@
 #include "jsontablehandler.h"
 
 #include <QCheckBox>
+#include <QDir>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLayout>
+#include <QString>
 #include <QTableWidget>
 #include <QWidget>
 
 JsonTableHandler::JsonTableHandler(QTableWidget* table) : table_(table) {}
 
-QJsonDocument JsonTableHandler::GetJsonTable() {
+void JsonTableHandler::SaveJsonTable(const QString& path,
+                                     const QString& fname) {
   QJsonObject rows;
   for (int i = 0; i < table_->rowCount(); ++i) {
     bool flag = GetTableCheckBoxState(i, kFlagIndex);
     QString id = table_->item(i, kRowIdIndex)->text();
     rows[id] = flag;
   }
-  return QJsonDocument(rows);
+  QJsonDocument doc = QJsonDocument(rows);
+
+  if (!QDir(path).exists()) {
+    QDir().mkdir(path);
+  }
+  QFile file(fname);
+  if (!file.open(QIODevice::WriteOnly)) {
+    return;
+  }
+  file.write(doc.toJson());
+  file.close();
 }
 
-void JsonTableHandler::SetJsonTable(const QJsonDocument& json) {
+void JsonTableHandler::SetJsonTable(const QString& fname) {
+  QFile file(fname);
+  if (!file.open(QIODevice::ReadOnly)) {
+    return;
+  }
+  QJsonDocument json = QJsonDocument::fromJson(file.readAll());
+  file.close();
+
   QJsonObject rows = json.object();
+
+  table_->setSortingEnabled(false);
+
+  QHash<QString, int> row_lookup;
+  for (int i = 0; i < table_->rowCount(); ++i) {
+    QString id = table_->item(i, kRowIdIndex)->text();
+    row_lookup[id] = i;
+  }
+
   for (QJsonObject::iterator it = rows.begin(); it != rows.end(); ++it) {
     QString id = it.key();
     bool flag = it.value().toBool();
-    // QTableWidgetItem* item = table->findItems(id, Qt::MatchExactly).first();
-    // SetTableCheckBox(table, row, kFlagIndex, flag);
+
+    if (row_lookup.contains(id)) {
+      SetTableCheckBox(row_lookup[id], kFlagIndex, flag);
+    }
   }
+
+  table_->setSortingEnabled(true);
 }
 
 bool JsonTableHandler::GetTableCheckBoxState(int row, int column) {

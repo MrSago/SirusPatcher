@@ -14,6 +14,7 @@
 
 #include "QtGui/createpatchworker.h"
 #include "QtGui/enchanttableworker.h"
+#include "QtGui/jsontablehandler.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/spelltableworker.h"
 
@@ -70,6 +71,10 @@ class SirusPatcherWindow : public QMainWindow {
   const QString kCrossIconPath = "://resources/icons/cross.png";
   const QString kMinusIconPath = "://resources/icons/minus.png";
 
+  const QString kJsonTablePath = "./settings/";
+  const QString kJsonSpellTablePath = kJsonTablePath + "spell.json";
+  const QString kJsonEnchantTablePath = kJsonTablePath + "enchant.json";
+
   void InitThreadsAndWorkers();
   void SetupWindow();
   void SetupTabLabels();
@@ -104,6 +109,9 @@ class SirusPatcherWindow : public QMainWindow {
   QThread* spell_table_thread_;
   QThread* enchant_table_thread_;
   QThread* create_patch_thread_;
+
+  JsonTableHandler* spell_json_table_;
+  JsonTableHandler* enchant_json_table_;
 
   bool is_error_occurred_;
   int count_prepared_tables_;
