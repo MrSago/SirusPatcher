@@ -35,8 +35,9 @@ std::string Record::GetString(uint32_t field) const {
   ValidateIndex(field - 1);
 
   stringref offset = GetUInt32(field);
-  if (offset >= dbc_->header.string_block_size)
+  if (offset >= dbc_->header.string_block_size) {
     throw std::out_of_range("String offset out of range");
+  }
 
   char* string_block_pointer = dbc_->string_block + offset;
   return std::string(string_block_pointer);
@@ -46,12 +47,14 @@ void Record::SetStringRef(uint32_t field, const std::string& str) {
   ValidateIndex(field - 1);
 
   stringref offset = GetUInt32(field);
-  if (offset == 0 || offset >= dbc_->header.string_block_size)
+  if (offset == 0 || offset >= dbc_->header.string_block_size) {
     throw std::out_of_range("String offset out of range");
+  }
 
   char* string_block_pointer = dbc_->string_block + offset;
-  if (str.length() > strlen(string_block_pointer))
+  if (str.length() > strlen(string_block_pointer)) {
     throw std::out_of_range("New string length bigger than allocated space");
+  }
 
   strcpy(string_block_pointer, str.c_str());
 }
@@ -73,6 +76,7 @@ Record::Record(DBCFile* dbc, uint32_t index)
     : dbc_(dbc), pointer_(dbc->records + dbc->header.record_size * index) {}
 
 void Record::ValidateIndex(uint32_t index) const {
-  if (index < 0 || index >= dbc_->header.field_count)
+  if (index < 0 || index >= dbc_->header.field_count) {
     throw std::out_of_range("Field index out of range");
+  }
 }

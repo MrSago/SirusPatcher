@@ -19,9 +19,9 @@ const QString SpellTableWorker::kDbcSavePath = "./Spell.dbc.save";
 const QString SpellTableWorker::kJsonTablePath =
     "://resources/dbc/Spell.dbc.json";
 
-const int SpellTableWorker::kSpellVisual = 132;
-const int SpellTableWorker::kSpellName = 145;
-const int SpellTableWorker::kSpellDescription = 179;
+constexpr int SpellTableWorker::kSpellVisual = 132;
+constexpr int SpellTableWorker::kSpellName = 145;
+constexpr int SpellTableWorker::kSpellDescription = 179;
 
 SpellTableWorker::SpellTableWorker(QTableWidget* table, QObject* parent)
     : QObject(parent), table_(table) {}

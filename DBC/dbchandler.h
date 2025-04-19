@@ -51,7 +51,7 @@ class DBCHandler {
  private:
   void InitRecordMap();
 
-  DBCFile* dbc_;
+  DBCFile* dbc_ = nullptr;
   std::map<uint32_t, Record> record_map_;
 };
 

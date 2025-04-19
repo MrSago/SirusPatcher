@@ -27,17 +27,13 @@
 #include "QtGui/spelltableworker.h"
 
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
-    : QMainWindow(parent),
-      ui_(new Ui::SirusPatcherWindow),
-      is_error_occurred_(false),
-      count_prepared_tables_(0),
-      gif_(nullptr) {
+    : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow) {
   ui_->setupUi(this);
   InitThreadsAndWorkers();
-  SetupWindow();
-  SetupSpellTable();
-  SetupEnchantTable();
-  SetupConnections();
+  InitTabs();
+  InitSpellTable();
+  InitEnchantTable();
+  InitEventHandlers();
 }
 
 SirusPatcherWindow::~SirusPatcherWindow() {
@@ -163,9 +159,9 @@ void SirusPatcherWindow::OnItemClicked(const QModelIndex& index) {
       return;
   }
 
-  int ix = index.row();
+  int rowIndex = index.row();
   QCheckBox* check_box = qobject_cast<QCheckBox*>(
-      table->cellWidget(ix, 0)->layout()->itemAt(0)->widget());
+      table->cellWidget(rowIndex, 0)->layout()->itemAt(0)->widget());
   check_box->setChecked(!check_box->isChecked());
 }
 
@@ -276,7 +272,7 @@ void SirusPatcherWindow::InitThreadsAndWorkers() {
   create_patch_worker_->moveToThread(create_patch_thread_);
 }
 
-void SirusPatcherWindow::SetupWindow() {
+void SirusPatcherWindow::InitTabs() {
   struct TabInfo {
     int index;
     QString title;
@@ -305,7 +301,7 @@ void SirusPatcherWindow::SetupWindow() {
   }
 }
 
-void SirusPatcherWindow::SetupSpellTable() {
+void SirusPatcherWindow::InitSpellTable() {
   QStringList headers;
   headers << "*"
           << "ID"
@@ -326,7 +322,7 @@ void SirusPatcherWindow::SetupSpellTable() {
   ui_->SpellTableWidget->setUpdatesEnabled(true);
 }
 
-void SirusPatcherWindow::SetupEnchantTable() {
+void SirusPatcherWindow::InitEnchantTable() {
   QStringList headers;
   headers << "*"
           << "ID"
@@ -345,7 +341,7 @@ void SirusPatcherWindow::SetupEnchantTable() {
   ui_->EnchantTableWidget->setUpdatesEnabled(true);
 }
 
-void SirusPatcherWindow::SetupConnections() {
+void SirusPatcherWindow::InitEventHandlers() {
   ConnectButtons();
   ConnectMPQArchiver();
   ConnectSpellTable();
@@ -430,7 +426,9 @@ void SirusPatcherWindow::ConnectCreatePatch() {
 }
 
 bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
-  if (dir.isEmpty()) return false;
+  if (dir.isEmpty()) {
+    return false;
+  }
 
   QString run_exe = dir + "/run.exe";
   if (!QFile::exists(run_exe)) {

@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <string>
 
-DBCHandler::DBCHandler() : dbc_(nullptr) {}
+DBCHandler::DBCHandler() {}
 
 DBCHandler::~DBCHandler() { Clear(); }
 

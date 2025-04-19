@@ -20,8 +20,8 @@ const QString EnchantTableWorker::kDbcSavePath =
 const QString EnchantTableWorker::kJsonTablePath =
     "://resources/dbc/SpellItemEnchantment.dbc.json";
 
-const int EnchantTableWorker::kItemVisual = 32;
-const int EnchantTableWorker::kRefName = 23;
+constexpr int EnchantTableWorker::kItemVisual = 32;
+constexpr int EnchantTableWorker::kRefName = 23;
 
 EnchantTableWorker::EnchantTableWorker(QTableWidget* table, QObject* parent)
     : QObject(parent), table_(table) {}

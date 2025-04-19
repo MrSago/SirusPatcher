@@ -71,18 +71,16 @@ class SirusPatcherWindow : public QMainWindow {
   const QString kMinusIconPath = "://resources/icons/minus.png";
 
   void InitThreadsAndWorkers();
-  void SetupWindow();
-  void SetupTabLabels();
-  void SetupSpellTable();
-  void SetupEnchantTable();
-  void SetupConnections();
+  void InitTabs();
+  void InitSpellTable();
+  void InitEnchantTable();
+  void InitEventHandlers();
   void ConnectButtons();
   void ConnectMPQArchiver();
   void ConnectSpellTable();
   void ConnectEnchantTable();
   void ConnectCreatePatch();
 
-  QLabel* TabLabel(const QString& text);
   bool ValidateGameDirectory(QString& dir);
   void ReloadProgramState();
   void SetTableCheckBoxes(QTableWidget* table, bool state);
@@ -105,9 +103,9 @@ class SirusPatcherWindow : public QMainWindow {
   QThread* enchant_table_thread_;
   QThread* create_patch_thread_;
 
-  bool is_error_occurred_;
-  int count_prepared_tables_;
-  QMovie* gif_;
+  bool is_error_occurred_ = false;
+  int count_prepared_tables_ = 0;
+  QMovie* gif_ = nullptr;
 };
 
 #endif  // _SIRUSPATCHERWINDOW_H_
