@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>resources/images/splash-screen.png</file>
         <file>resources/text/version</file>
-        <file>resources/icons/close.png</file>
-        <file>resources/icons/hide.png</file>
         <file>resources/icons/window.ico</file>
         <file>resources/dbc/Spell.dbc.json</file>
         <file>resources/dbc/SpellItemEnchantment.dbc.json</file>

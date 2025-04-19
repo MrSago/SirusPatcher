@@ -35,7 +35,6 @@ SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
   ui_->setupUi(this);
   InitThreadsAndWorkers();
   SetupWindow();
-  SetupTabLabels();
   SetupSpellTable();
   SetupEnchantTable();
   SetupConnections();
@@ -278,26 +277,32 @@ void SirusPatcherWindow::InitThreadsAndWorkers() {
 }
 
 void SirusPatcherWindow::SetupWindow() {
-  this->setWindowFlags(Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
-  ui_->WindowName->setText(QString("%1 %2").arg(ProgInfoGetter::GetProgName(),
-                                                ProgInfoGetter::GetVersion()));
-}
+  struct TabInfo {
+    int index;
+    QString title;
+    bool initiallyEnabled;
+  };
 
-void SirusPatcherWindow::SetupTabLabels() {
-  ui_->MainTabWidget->tabBar()->setTabButton(kSettingsTab, QTabBar::LeftSide,
-                                             TabLabel("Настройки"));
-  ui_->MainTabWidget->tabBar()->setTabButton(kSpellTab, QTabBar::LeftSide,
-                                             TabLabel("Заклинания"));
-  ui_->MainTabWidget->tabBar()->setTabButton(kEnchantTab, QTabBar::LeftSide,
-                                             TabLabel("Иллюзии"));
-  ui_->MainTabWidget->tabBar()->setTabButton(kFeaturesTab, QTabBar::LeftSide,
-                                             TabLabel("Доп. возможности"));
-  ui_->MainTabWidget->tabBar()->setTabButton(kAboutTab, QTabBar::LeftSide,
-                                             TabLabel("О программе"));
+  TabInfo tabs[] = {{kSettingsTab, "Настройки", true},
+                    {kSpellTab, "Заклинания", false},
+                    {kEnchantTab, "Иллюзии", false},
+                    {kFeaturesTab, "Доп. возможности", false},
+                    {kAboutTab, "О программе", true}};
 
-  ui_->MainTabWidget->setTabEnabled(kSpellTab, false);
-  ui_->MainTabWidget->setTabEnabled(kEnchantTab, false);
-  ui_->MainTabWidget->setTabEnabled(kFeaturesTab, false);
+  QFont tabFont("Segoe UI");
+  tabFont.setPointSize(12);
+
+  for (const auto& tab : tabs) {
+    QLabel* label = new QLabel(tab.title);
+    label->setFont(tabFont);
+    label->setAlignment(Qt::AlignCenter);
+    label->setGeometry(0, 0, 150, 50);
+
+    ui_->MainTabWidget->tabBar()->setTabButton(tab.index, QTabBar::LeftSide,
+                                               label);
+
+    ui_->MainTabWidget->setTabEnabled(tab.index, tab.initiallyEnabled);
+  }
 }
 
 void SirusPatcherWindow::SetupSpellTable() {
@@ -349,10 +354,6 @@ void SirusPatcherWindow::SetupConnections() {
 }
 
 void SirusPatcherWindow::ConnectButtons() {
-  connect(ui_->HideButton, &QPushButton::clicked, this,
-          &QMainWindow::showMinimized);
-  connect(ui_->CloseButton, &QPushButton::clicked, this, &QMainWindow::close);
-
   connect(ui_->ChooseDirectoryButton, &QPushButton::clicked, this,
           &SirusPatcherWindow::OnChooseDirectoryButtonClicked);
   connect(ui_->CreatePatchButton, &QPushButton::clicked, this,
@@ -426,16 +427,6 @@ void SirusPatcherWindow::ConnectCreatePatch() {
           &SirusPatcherWindow::OnPatchCreated);
   connect(create_patch_worker_, &CreatePatchWorker::ProgressChanged, this,
           &SirusPatcherWindow::AddProgressBarValue);
-}
-
-QLabel* SirusPatcherWindow::TabLabel(const QString& text) {
-  QLabel* label = new QLabel(text);
-  QFont font("Segoe UI");
-  font.setPointSize(12);
-  label->setFont(font);
-  label->setAlignment(Qt::AlignCenter);
-  label->setGeometry(0, 0, 150, 50);
-  return label;
 }
 
 bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
