@@ -22,6 +22,7 @@
 #include "./ui_siruspatcherwindow.h"
 #include "QtGui/createpatchworker.h"
 #include "QtGui/enchanttableworker.h"
+#include "QtGui/jsontablehandler.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/proginfogetter.h"
 #include "QtGui/spelltableworker.h"
@@ -42,9 +43,17 @@ const QString SirusPatcherWindow::kCrossIconPath =
 const QString SirusPatcherWindow::kMinusIconPath =
     "://resources/icons/minus.png";
 
+const QString SirusPatcherWindow::kJsonTablePath = "./settings/";
+const QString SirusPatcherWindow::kJsonSpellTablePath =
+    SirusPatcherWindow::kJsonTablePath + "spell.json";
+const QString SirusPatcherWindow::kJsonEnchantTablePath =
+    SirusPatcherWindow::kJsonTablePath + "enchant.json";
+
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
     : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow) {
   ui_->setupUi(this);
+  spell_json_table_ = new JsonTableHandler(ui_->SpellTableWidget),
+  enchant_json_table_ = new JsonTableHandler(ui_->EnchantTableWidget),
   InitThreadsAndWorkers();
   InitTabs();
   InitSpellTable();
@@ -122,6 +131,9 @@ void SirusPatcherWindow::OnCreatePatchButtonClicked() {
 
   create_patch_thread_->start();
   create_patch_thread_->quit();
+
+  spell_json_table_->SaveJsonTable(kJsonTablePath, kJsonSpellTablePath);
+  enchant_json_table_->SaveJsonTable(kJsonTablePath, kJsonEnchantTablePath);
 }
 
 void SirusPatcherWindow::OnEnableAllCBButtonClicked() {
@@ -191,6 +203,12 @@ void SirusPatcherWindow::OnExtractingFinished() {
   ui_->InitEnchantStatus->setMovie(gif_);
   FillProgressBarToMax();
 
+  ui_->SpellTableWidget->blockSignals(true);
+  ui_->SpellTableWidget->setUpdatesEnabled(false);
+
+  ui_->EnchantTableWidget->blockSignals(true);
+  ui_->EnchantTableWidget->setUpdatesEnabled(false);
+
   spell_table_thread_->start();
   enchant_table_thread_->start();
 
@@ -202,9 +220,17 @@ void SirusPatcherWindow::OnSpellTableCreated() {
   for (int i = 0; i < ui_->SpellTableWidget->rowCount(); ++i) {
     ui_->SpellTableWidget->setCellWidget(i, 0, CreateCheckBox(true));
   }
+
+  spell_json_table_->SetJsonTable(kJsonSpellTablePath);
+
+  ui_->SpellTableWidget->blockSignals(false);
+  ui_->SpellTableWidget->setUpdatesEnabled(true);
+
   ui_->SpellTableWidget->setSortingEnabled(true);
   ui_->SpellTableWidget->sortItems(2, Qt::AscendingOrder);
   ui_->SpellTableWidget->update();
+
+  ui_->SpellTableWidget->viewport()->update();
 
   ui_->InitSpellStatus->setPixmap(QPixmap(kCheckIconPath));
   ui_->MainTabWidget->setTabEnabled(kSpellTab, true);
@@ -216,9 +242,17 @@ void SirusPatcherWindow::OnEnchantTableCreated() {
   for (int i = 0; i < ui_->EnchantTableWidget->rowCount(); ++i) {
     ui_->EnchantTableWidget->setCellWidget(i, 0, CreateCheckBox(true));
   }
+
+  enchant_json_table_->SetJsonTable(kJsonEnchantTablePath);
+
+  ui_->EnchantTableWidget->blockSignals(false);
+  ui_->EnchantTableWidget->setUpdatesEnabled(true);
+
   ui_->EnchantTableWidget->setSortingEnabled(true);
   ui_->EnchantTableWidget->sortItems(2, Qt::AscendingOrder);
   ui_->EnchantTableWidget->update();
+
+  ui_->EnchantTableWidget->viewport()->update();
 
   ui_->InitEnchantStatus->setPixmap(QPixmap(kCheckIconPath));
   ui_->MainTabWidget->setTabEnabled(kEnchantTab, true);

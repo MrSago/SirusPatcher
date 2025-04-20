@@ -16,8 +16,7 @@
 
 const QString SpellTableWorker::kDbcPath = "./Spell.dbc";
 const QString SpellTableWorker::kDbcSavePath = "./Spell.dbc.save";
-const QString SpellTableWorker::kJsonTablePath =
-    "://resources/dbc/Spell.dbc.json";
+const QString SpellTableWorker::kJsonTablePath = "./dbc/Spell.dbc.json";
 
 constexpr int SpellTableWorker::kSpellVisual = 132;
 constexpr int SpellTableWorker::kSpellName = 145;

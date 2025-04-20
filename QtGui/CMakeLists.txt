@@ -50,3 +50,11 @@ add_custom_command(TARGET QtGui POST_BUILD
           $<TARGET_FILE_DIR:QtGui>
   COMMENT "Copying StormLib dlls..."
 )
+
+set(DBC_JSONS ${CMAKE_CURRENT_SOURCE_DIR}/resources/dbc/)
+add_custom_command(TARGET QtGui POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${DBC_JSONS}
+          $<TARGET_FILE_DIR:QtGui>/dbc/
+  COMMENT "Copying jsons..."
+)
