@@ -5,6 +5,7 @@
 #include <QString>
 
 #include "QtGui/enchanttableworker.h"
+#include "QtGui/ladyspiritschanger.h"
 #include "QtGui/mpqarchiver.h"
 #include "QtGui/spelltableworker.h"
 #include "QtGui/yserachanger.h"
@@ -22,7 +23,9 @@ class CreatePatchWorker : public QObject {
   void StartCreatingPatch();
 
  signals:
-  void ProgressChanged(int value);
+  void AddProgressBarValue(int value);
+  void SetProgressBarMaximum(int maximum);
+  void AddTotalRecords(int count);
   void ErrorOccurred(const QString& error);
 
  private:
@@ -30,6 +33,7 @@ class CreatePatchWorker : public QObject {
   SpellTableWorker* spell_table_worker_;
   EnchantTableWorker* enchant_table_worker_;
   YseraChanger ysera_changer_;
+  LadySpiritsChanger lady_spirits_changer_;
 };
 
 #endif  // _CREATEPATCHWORKER_H_

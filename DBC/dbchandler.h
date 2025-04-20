@@ -17,6 +17,7 @@ enum class DBCError : errno_t {
 };
 
 using stringref = uint32_t;
+using irefid = uint32_t;
 
 struct DBCHeader {
   uint32_t magic;

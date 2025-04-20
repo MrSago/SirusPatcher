@@ -25,7 +25,7 @@ class MPQArchiver : public QObject {
   bool ArchiveDBCFiles();
 
  signals:
-  void ProgressChanged(int value);
+  void AddProgressBarValue(int value);
   void ErrorOccurred(const QString& error);
 
  private:

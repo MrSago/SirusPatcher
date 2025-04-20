@@ -6,13 +6,14 @@
 #include "DBC/dbchandler.h"
 #include "DBC/record.h"
 
-void YseraChanger::Change() {
-  const std::string kDbcPath = "./SpellVisualEffectName.dbc";
-  const std::string kDbcPathSave = "./SpellVisualEffectName.dbc.save";
+const std::string YseraChanger::kDbcPath = "./SpellVisualEffectName.dbc";
+const std::string YseraChanger::kDbcPathSave =
+    "./SpellVisualEffectName.dbc.save";
 
+void YseraChanger::Change() {
   DBCHandler handler;
   if (handler.Load(kDbcPathSave) != DBCError::kSuccess) {
-    throw std::runtime_error("gg");
+    throw std::runtime_error("Error loading DBC file:\n" + kDbcPathSave);
   }
 
   Record ysera = handler.GetRecordById(8797);

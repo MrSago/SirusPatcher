@@ -26,6 +26,22 @@
 #include "QtGui/proginfogetter.h"
 #include "QtGui/spelltableworker.h"
 
+const QStringList SirusPatcherWindow::kDbcFileList = {
+    "Spell.dbc",
+    "SpellItemEnchantment.dbc",
+    "SpellVisualEffectName.dbc",
+    "CreatureDisplayInfo.dbc",
+};
+
+const QString SirusPatcherWindow::kRefreshGifPath =
+    "://resources/icons/refresh.gif";
+const QString SirusPatcherWindow::kCheckIconPath =
+    "://resources/icons/check.png";
+const QString SirusPatcherWindow::kCrossIconPath =
+    "://resources/icons/cross.png";
+const QString SirusPatcherWindow::kMinusIconPath =
+    "://resources/icons/minus.png";
+
 SirusPatcherWindow::SirusPatcherWindow(QWidget* parent)
     : QMainWindow(parent), ui_(new Ui::SirusPatcherWindow) {
   ui_->setupUi(this);
@@ -62,9 +78,13 @@ SirusPatcherWindow::~SirusPatcherWindow() {
   delete ui_;
 }
 
+#pragma region Slots
+
 void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
   ProgressBarClear();
-  gif_ = new QMovie(kUpdatedGifPath);
+  SetProgressBarMaximum(0);
+
+  gif_ = new QMovie(kRefreshGifPath);
   gif_->start();
   ui_->DirectoryCorrectStatus->setMovie(gif_);
 
@@ -80,6 +100,7 @@ void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
   if (!ValidateGameDirectory(game_dir)) {
     ui_->DirectoryCorrectStatus->setPixmap(QPixmap(
         started_dir != QDir::currentPath() ? kCheckIconPath : kCrossIconPath));
+    SetProgressBarMaximum(1);
     delete gif_, gif_ = nullptr;
     return;
   }
@@ -87,7 +108,6 @@ void SirusPatcherWindow::OnChooseDirectoryButtonClicked() {
   ui_->GameDirectoryLine->setText(game_dir);
 
   ReloadProgramState();
-  AddProgressBarValue(30);
 
   ui_->MpqUnpackedStatus->setMovie(gif_);
   mpq_archiver_->SetParameters(kDbcFileList, game_dir, QDir::currentPath());
@@ -165,28 +185,11 @@ void SirusPatcherWindow::OnItemClicked(const QModelIndex& index) {
   check_box->setChecked(!check_box->isChecked());
 }
 
-void SirusPatcherWindow::SetRowCountTable(QTableWidget* table, int count) {
-  table->setRowCount(count);
-}
-
-void SirusPatcherWindow::ResetRowCountTable(QTableWidget* table, int count) {
-  table->setRowCount(0);
-  table->setSortingEnabled(false);
-  table->setRowCount(count);
-}
-
-void SirusPatcherWindow::AddItemTable(QTableWidget* table, int row, int column,
-                                      const QVariant& text) {
-  QTableWidgetItem* item = new QTableWidgetItem();
-  item->setData(Qt::DisplayRole, text);
-  table->setItem(row, column, item);
-}
-
 void SirusPatcherWindow::OnExtractingFinished() {
   ui_->MpqUnpackedStatus->setPixmap(QPixmap(kCheckIconPath));
   ui_->InitSpellStatus->setMovie(gif_);
   ui_->InitEnchantStatus->setMovie(gif_);
-  AddProgressBarValue(100);
+  FillProgressBarToMax();
 
   spell_table_thread_->start();
   enchant_table_thread_->start();
@@ -235,7 +238,7 @@ void SirusPatcherWindow::OnWarningOccurred(const QString& warning) {
 void SirusPatcherWindow::OnPatchCreated() {
   EnableButtons();
   EnableTabs();
-  AddProgressBarValue(100);
+  FillProgressBarToMax();
   if (!is_error_occurred_) {
     QMessageBox::information(this, "Патч создан",
                              "Патч успешно создан, приятной игры!");
@@ -243,16 +246,60 @@ void SirusPatcherWindow::OnPatchCreated() {
   is_error_occurred_ = false;
 }
 
+#pragma region TableMethods
+
+void SirusPatcherWindow::SetRowCountTable(QTableWidget* table, int count) {
+  table->setRowCount(count);
+}
+
+void SirusPatcherWindow::ResetRowCountTable(QTableWidget* table, int count) {
+  table->setRowCount(0);
+  table->setSortingEnabled(false);
+  table->setRowCount(count);
+}
+
+void SirusPatcherWindow::AddItemTable(QTableWidget* table, int row, int column,
+                                      const QVariant& text) {
+  QTableWidgetItem* item = new QTableWidgetItem();
+  item->setData(Qt::DisplayRole, text);
+  table->setItem(row, column, item);
+}
+
+#pragma endregion TableMethods
+
+#pragma region ProgressBar
+
 void SirusPatcherWindow::AddProgressBarValue(int value) {
   ui_->ProgressBar->setValue(
       qMin(ui_->ProgressBar->value() + value, ui_->ProgressBar->maximum()));
 }
 
-void SirusPatcherWindow::ProgressBarClear() {
-  if (ui_->ProgressBar->value() >= ui_->ProgressBar->maximum()) {
-    ui_->ProgressBar->setValue(0);
-  }
+void SirusPatcherWindow::SetProgressBarMaximum(int maximum) {
+  ui_->ProgressBar->setMaximum(maximum);
+  ui_->ProgressBar->setValue(0);
+  total_records_count_ = 0;
 }
+
+void SirusPatcherWindow::ProgressBarClear() {
+  ui_->ProgressBar->setValue(0);
+  total_records_count_ = 0;
+}
+
+void SirusPatcherWindow::FillProgressBarToMax() {
+  ui_->ProgressBar->setValue(ui_->ProgressBar->maximum());
+  total_records_count_ = 0;
+}
+
+void SirusPatcherWindow::AddTotalRecords(int count) {
+  total_records_count_ += count;
+  ui_->ProgressBar->setMaximum(total_records_count_);
+}
+
+#pragma endregion ProgressBar
+
+#pragma endregion Slots
+
+#pragma region InitMethods
 
 void SirusPatcherWindow::InitThreadsAndWorkers() {
   mpq_archiver_ = new MPQArchiver();
@@ -349,6 +396,10 @@ void SirusPatcherWindow::InitEventHandlers() {
   ConnectCreatePatch();
 }
 
+#pragma endregion InitMethods
+
+#pragma region ConnectSignals
+
 void SirusPatcherWindow::ConnectButtons() {
   connect(ui_->ChooseDirectoryButton, &QPushButton::clicked, this,
           &SirusPatcherWindow::OnChooseDirectoryButtonClicked);
@@ -390,8 +441,12 @@ void SirusPatcherWindow::ConnectSpellTable() {
           &SirusPatcherWindow::ResetRowCountTable);
   connect(spell_table_worker_, &SpellTableWorker::AddItem, this,
           &SirusPatcherWindow::AddItemTable);
-  connect(spell_table_worker_, &SpellTableWorker::ProgressChanged, this,
+  connect(spell_table_worker_, &SpellTableWorker::AddProgressBarValue, this,
           &SirusPatcherWindow::AddProgressBarValue);
+  connect(spell_table_worker_, &SpellTableWorker::SetProgressBarMaximum, this,
+          &SirusPatcherWindow::SetProgressBarMaximum);
+  connect(spell_table_worker_, &SpellTableWorker::AddTotalRecords, this,
+          &SirusPatcherWindow::AddTotalRecords);
   connect(spell_table_worker_, &SpellTableWorker::ErrorOccurred, this,
           &SirusPatcherWindow::OnErrorOccurred);
   connect(spell_table_worker_, &SpellTableWorker::WarningOccurred, this,
@@ -408,8 +463,12 @@ void SirusPatcherWindow::ConnectEnchantTable() {
           &SirusPatcherWindow::ResetRowCountTable);
   connect(enchant_table_worker_, &EnchantTableWorker::AddItem, this,
           &SirusPatcherWindow::AddItemTable);
-  connect(enchant_table_worker_, &EnchantTableWorker::ProgressChanged, this,
+  connect(enchant_table_worker_, &EnchantTableWorker::AddProgressBarValue, this,
           &SirusPatcherWindow::AddProgressBarValue);
+  connect(enchant_table_worker_, &EnchantTableWorker::SetProgressBarMaximum,
+          this, &SirusPatcherWindow::SetProgressBarMaximum);
+  connect(enchant_table_worker_, &EnchantTableWorker::AddTotalRecords, this,
+          &SirusPatcherWindow::AddTotalRecords);
   connect(enchant_table_worker_, &EnchantTableWorker::ErrorOccurred, this,
           &SirusPatcherWindow::OnErrorOccurred);
   connect(enchant_table_worker_, &EnchantTableWorker::WarningOccurred, this,
@@ -421,9 +480,19 @@ void SirusPatcherWindow::ConnectCreatePatch() {
           &CreatePatchWorker::StartCreatingPatch);
   connect(create_patch_thread_, &QThread::finished, this,
           &SirusPatcherWindow::OnPatchCreated);
-  connect(create_patch_worker_, &CreatePatchWorker::ProgressChanged, this,
+  connect(create_patch_worker_, &CreatePatchWorker::AddProgressBarValue, this,
           &SirusPatcherWindow::AddProgressBarValue);
+  connect(create_patch_worker_, &CreatePatchWorker::SetProgressBarMaximum, this,
+          &SirusPatcherWindow::SetProgressBarMaximum);
+  connect(create_patch_worker_, &CreatePatchWorker::AddTotalRecords, this,
+          &SirusPatcherWindow::AddTotalRecords);
+  connect(create_patch_worker_, &CreatePatchWorker::ErrorOccurred, this,
+          &SirusPatcherWindow::OnErrorOccurred);
 }
+
+#pragma endregion ConnectSignals
+
+#pragma region HelperMethods
 
 bool SirusPatcherWindow::ValidateGameDirectory(QString& dir) {
   if (dir.isEmpty()) {
@@ -457,6 +526,7 @@ void SirusPatcherWindow::ReloadProgramState() {
   ui_->MainTabWidget->setTabEnabled(kSpellTab, false);
   ui_->MpqUnpackedStatus->setPixmap(QPixmap(kMinusIconPath));
   ui_->InitSpellStatus->setPixmap(QPixmap(kMinusIconPath));
+  ui_->InitEnchantStatus->setPixmap(QPixmap(kMinusIconPath));
 }
 
 void SirusPatcherWindow::SetTableCheckBoxes(QTableWidget* table, bool state) {
@@ -513,3 +583,5 @@ void SirusPatcherWindow::DisableTabs() {
   ui_->SpellTab->setEnabled(false);
   ui_->EnchantTab->setEnabled(false);
 }
+
+#pragma endregion HelperMethods

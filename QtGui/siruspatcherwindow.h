@@ -34,6 +34,14 @@ QT_END_NAMESPACE
 class SirusPatcherWindow : public QMainWindow {
   Q_OBJECT
 
+ private:
+  static const QStringList kDbcFileList;
+
+  static const QString kRefreshGifPath;
+  static const QString kCheckIconPath;
+  static const QString kCrossIconPath;
+  static const QString kMinusIconPath;
+
  public:
   SirusPatcherWindow(QWidget* parent = nullptr);
   ~SirusPatcherWindow();
@@ -46,30 +54,25 @@ class SirusPatcherWindow : public QMainWindow {
   void OnTabBarClicked(int index);
   void OnItemClicked(const QModelIndex& index);
 
-  void SetRowCountTable(QTableWidget* table, int count);
-  void ResetRowCountTable(QTableWidget* table, int count);
-  void AddItemTable(QTableWidget* table, int row, int column,
-                    const QVariant& text);
-
   void OnExtractingFinished();
   void OnSpellTableCreated();
   void OnEnchantTableCreated();
   void OnErrorOccurred(const QString& error);
   void OnWarningOccurred(const QString& warning);
-
   void OnPatchCreated();
+
+  void SetRowCountTable(QTableWidget* table, int count);
+  void ResetRowCountTable(QTableWidget* table, int count);
+  void AddItemTable(QTableWidget* table, int row, int column,
+                    const QVariant& text);
+
   void AddProgressBarValue(int value);
+  void SetProgressBarMaximum(int maximum);
   void ProgressBarClear();
+  void FillProgressBarToMax();
+  void AddTotalRecords(int count);
 
  private:
-  const QStringList kDbcFileList = {"Spell.dbc", "SpellItemEnchantment.dbc",
-                                    "SpellVisualEffectName.dbc"};
-
-  const QString kUpdatedGifPath = "://resources/icons/refresh.gif";
-  const QString kCheckIconPath = "://resources/icons/check.png";
-  const QString kCrossIconPath = "://resources/icons/cross.png";
-  const QString kMinusIconPath = "://resources/icons/minus.png";
-
   void InitThreadsAndWorkers();
   void InitTabs();
   void InitSpellTable();
@@ -105,6 +108,7 @@ class SirusPatcherWindow : public QMainWindow {
 
   bool is_error_occurred_ = false;
   int count_prepared_tables_ = 0;
+  int total_records_count_ = 0;
   QMovie* gif_ = nullptr;
 };
 

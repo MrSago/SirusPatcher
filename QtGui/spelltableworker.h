@@ -31,7 +31,9 @@ class SpellTableWorker : public QObject {
   void SetRowCount(QTableWidget* table, int count);
   void ResetRowCount(QTableWidget* table, int count);
   void AddItem(QTableWidget* table, int row, int column, const QVariant& text);
-  void ProgressChanged(int value);
+  void AddProgressBarValue(int value);
+  void SetProgressBarMaximum(int maximum);
+  void AddTotalRecords(int count);
   void ErrorOccurred(const QString& error);
   void WarningOccurred(const QString& warning);
 

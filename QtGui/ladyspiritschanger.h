@@ -1,9 +1,9 @@
-#ifndef _YSERACHANGER_H_
-#define _YSERACHANGER_H_
+#ifndef _LADYSPIRITSCHANGER_H_
+#define _LADYSPIRITSCHANGER_H_
 
 #include <string>
 
-class YseraChanger {
+class LadySpiritsChanger {
  private:
   static const std::string kDbcPath;
   static const std::string kDbcPathSave;
@@ -12,4 +12,4 @@ class YseraChanger {
   void Change();
 };
 
-#endif  // _YSERACHANGER_H_
+#endif  // _LADYSPIRITSCHANGER_H_

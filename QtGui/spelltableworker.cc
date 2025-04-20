@@ -32,7 +32,6 @@ bool SpellTableWorker::InitDBCTable() {
     emit ErrorOccurred("Ошибка загрузки DBC файла:\n" + kDbcSavePath);
     return false;
   }
-  emit ProgressChanged(3);
 
   QFile json_file(kJsonTablePath);
   if (!json_file.open(QIODevice::ReadOnly)) {
@@ -41,12 +40,8 @@ bool SpellTableWorker::InitDBCTable() {
   }
 
   QJsonArray ids_array = QJsonDocument::fromJson(json_file.readAll()).array();
-  emit ProgressChanged(2);
 
-  constexpr double kMaxProgress = 20.0l;
-  const double kProgressStep = kMaxProgress / ids_array.count();
-  double progress_double = 0.0l;
-  int progress = 0;
+  emit AddTotalRecords(ids_array.count());
 
   emit ResetRowCount(table_, ids_array.count());
 
@@ -68,12 +63,7 @@ bool SpellTableWorker::InitDBCTable() {
                                .arg(QString::number(id), kDbcPath, e.what()));
     }
 
-    progress_double += kProgressStep;
-    int current_progress = static_cast<int>(progress_double);
-    if (current_progress != progress) {
-      progress = current_progress;
-      emit ProgressChanged(1);
-    }
+    emit AddProgressBarValue(1);
   }
 
   emit SetRowCount(table_, ids_array.count() - skipped_index);
@@ -88,10 +78,7 @@ bool SpellTableWorker::WriteDBCTable() {
     return false;
   }
 
-  constexpr double kMaxProgress = 33.0l;
-  const double kProgressStep = kMaxProgress / table_->rowCount();
-  double progress_double = 0.0l;
-  int progress = 0;
+  emit AddTotalRecords(table_->rowCount());
 
   for (int i = 0; i < table_->rowCount(); ++i) {
     QWidget* item = (table_->cellWidget(i, 0));
@@ -105,12 +92,7 @@ bool SpellTableWorker::WriteDBCTable() {
       handler.GetRecordById(id).SetUInt32(kSpellVisual, 0);
     }
 
-    progress_double += kProgressStep;
-    int current_progress = int(progress_double);
-    if (current_progress != progress) {
-      progress = current_progress;
-      emit ProgressChanged(1);
-    }
+    emit AddProgressBarValue(1);
   }
 
   if (handler.Save(kDbcPath.toStdString()) != DBCError::kSuccess) {
